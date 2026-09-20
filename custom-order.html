@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Custom Order | Precision Burn Studio</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<header class="header"><div class="wrap navwrap"><a class="logo" href="index.html"><span class="logo-badge">PBS</span><span><b>PRECISION BURN</b><em>STUDIO</em></span></a><nav class="nav"><a href="index.html#products">Products</a><a href="index.html#gallery">Gallery</a><a href="index.html#about">About</a><a class="navbutton" href="custom-order.html">GET A QUOTE</a></nav></div></header>
+<main>
+<section class="form-hero"><div class="wrap"><div class="kicker">CUSTOM PROJECT REQUEST</div><h1>Let's build your <span>idea.</span></h1><p>Upload a picture, artwork, logo or reference image and tell us what you want engraved. We'll review the project and contact you about pricing and next steps.</p></div></section>
+<section class="section"><div class="wrap form-layout"><div class="form-intro"><div class="kicker">BEFORE YOU SUBMIT</div><h2>Give us the details.</h2><p>The more information you provide, the easier it is to understand your vision. You do not need to have everything figured out.</p><div class="note"><b>Quote request only.</b><br>Submitting this form does not place a paid order. Production begins only after project details, pricing and timing are confirmed.</div><p class="email-note">Prefer email? Send your idea directly to <a href="mailto:precisionburnstudio@yahoo.com">precisionburnstudio@yahoo.com</a>.</p></div>
+<form class="order-form" action="YOUR_FORM_ENDPOINT" method="POST" enctype="multipart/form-data">
+<label>Name *<input name="name" required></label>
+<div class="two-fields"><label>Email *<input type="email" name="email" required></label><label>Phone<input type="tel" name="phone"></label></div>
+<label>What are you looking for? *<select name="product" required><option value="">Choose one</option><option>Custom Sign</option><option>Keychain</option><option>Cutting Board</option><option>Tumbler / Drinkware</option><option>Memorial Piece</option><option>Home Décor</option><option>Business / Corporate Item</option><option>Event / Convention Order</option><option>Gift</option><option>Award / Recognition</option><option>Customer-Supplied Item</option><option>Other</option></select></label>
+<label>What would you like engraved? *<textarea name="engraving" required rows="4" placeholder="Names, dates, message, logo, image, wording, etc."></textarea></label>
+<div class="two-fields"><label>Quantity<input type="number" name="quantity" min="1" value="1"></label><label>Approx. size<input name="size" placeholder="Example: 12 x 18 in."></label></div>
+<label>Material, if known<select name="material"><option>Not sure</option><option>Wood</option><option>Acrylic</option><option>Leather</option><option>Metal</option><option>Glass</option><option>Customer-supplied item</option><option>Other</option></select></label>
+<label>Preferred completion date<input type="date" name="deadline"></label>
+<label>Tell us more about your project<textarea name="details" rows="5" placeholder="Describe the look, occasion, colors, layout, or anything else we should know."></textarea></label>
+<label>Upload pictures, artwork, logos or reference images<input type="file" name="files" accept="image/*,.pdf,.svg" multiple><small>You can select more than one file.</small></label>
+<label class="check"><input type="checkbox" required> I understand this is a custom quote request and not an automatic purchase.</label>
+<button class="btn gold full" type="submit">SUBMIT MY CUSTOM PROJECT</button>
+</form></div></section>
+</main>
+<footer class="footer"><div class="wrap footer-grid"><div><a class="logo" href="index.html"><span class="logo-badge">PBS</span><span><b>PRECISION BURN</b><em>STUDIO</em></span></a><p>You bring the idea. We bring it to life.</p></div><div><h4>Email</h4><a href="mailto:precisionburnstudio@yahoo.com">precisionburnstudio@yahoo.com</a></div></div><div class="wrap copyright">© 2026 Precision Burn Studio</div></footer>
+</body></html>

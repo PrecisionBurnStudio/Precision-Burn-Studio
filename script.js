@@ -1,0 +1,1 @@
+const h=document.querySelector('.hamburger'),n=document.querySelector('.nav');if(h&&n){h.addEventListener('click',()=>n.classList.toggle('open'));n.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>n.classList.remove('open')))}
