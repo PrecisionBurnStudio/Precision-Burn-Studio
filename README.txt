@@ -1,27 +1,16 @@
-PRECISION BURN STUDIO — PROFESSIONAL WEBSITE
+PRECISION BURN STUDIO WEBSITE
 
-This version is designed around the business model discussed:
-CUSTOM ORDER -> CUSTOMER UPLOADS IMAGE/IDEA -> YOU REVIEW -> YOU QUOTE -> PRODUCTION.
+This website has been customized with the official Precision Burn Studio logo and banner supplied by Gregory, the owner and creator.
 
-Branding:
-- Black / charcoal / metallic-gold visual direction
-- Precision Burn Studio name
-- Tagline: "You bring the idea. We bring it to life."
-- Business email: precisionburnstudio@yahoo.com
+Included:
+- index.html - main website
+- custom-order.html - custom project / quote request page
+- styles.css - site styling
+- script.js - mobile navigation behavior
+- assets/precision-burn-studio-logo.png - official logo
+- assets/precision-burn-studio-banner.jpg - official banner
 
-Product categories included:
-- Custom signs
-- Custom keychains
-- Personalized cutting boards
-- Tumblers / drinkware
-- Memorial pieces
-- Business / corporate and event orders
+Important:
+The custom-order form currently contains the placeholder action "YOUR_FORM_ENDPOINT". Before publishing the live site, connect the form to a form service or website backend that supports file uploads. Do not publish the form as-is and expect submissions to reach the business email.
 
-IMPORTANT:
-The custom-order form has a file-upload field, but it is not connected to an email/form-processing service yet.
-In custom-order.html replace YOUR_FORM_ENDPOINT with the endpoint from the form service you choose.
-Until that is connected, the form will not actually deliver submissions.
-
-The gallery currently uses professional placeholder tiles because the original customer photos are not included in this website package. Replace them with your actual product photos.
-
-This site is static and can be hosted on a free static host. A custom domain is optional.
+Product/gallery image placeholders are intentionally left in place until real product photos are supplied.
