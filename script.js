@@ -1,3 +1,11 @@
+const SUPABASE_URL = "https://novkaqylwqdtwceypyrk.supabase.co";
+const SUPABASE_KEY = "Sb_publishable_XCShczpfe0WhoNWuUYgGug_-M9o_c0t";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
 const h=document.querySelector('.hamburger'),n=document.querySelector('.nav');
 if(h&&n){
   h.addEventListener('click',()=>{
