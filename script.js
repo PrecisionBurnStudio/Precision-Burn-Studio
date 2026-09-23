@@ -17,3 +17,6 @@ if(h&&n){
     h.setAttribute('aria-expanded','false');
   }));
 }
+
+console.log("Precision Burn Studio: Supabase connection loaded");
+console.log("Supabase client:", supabaseClient);
