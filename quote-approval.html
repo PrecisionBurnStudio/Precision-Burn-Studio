@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Quote Approval | Precision Burn Studio</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #111111;
+      color: #f5f5f5;
+    }
+
+    .header {
+      text-align: center;
+      padding: 30px 20px 20px;
+      border-bottom: 1px solid #333;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+
+    .tagline {
+      margin-top: 8px;
+      color: #c9a227;
+      font-style: italic;
+    }
+
+    .container {
+      max-width: 750px;
+      margin: 35px auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: #1c1c1c;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #c9a227;
+    }
+
+    .quote-number {
+      color: #bbb;
+      margin-bottom: 25px;
+    }
+
+    .section {
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 8px 0;
+    }
+
+    .label {
+      color: #aaa;
+    }
+
+    .value {
+      text-align: right;
+    }
+
+    .total {
+      font-size: 22px;
+      font-weight: bold;
+      color: #c9a227;
+      margin-top: 10px;
+    }
+
+    .terms {
+      margin-top: 30px;
+      background: #151515;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 18px;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .checkbox {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-top: 20px;
+      line-height: 1.5;
+    }
+
+    .checkbox input {
+      margin-top: 5px;
+      transform: scale(1.2);
+    }
+
+    button {
+      width: 100%;
+      margin-top: 25px;
+      padding: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #c9a227;
+      color: #111;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .message {
+      text-align: center;
+      padding: 30px 10px;
+      color: #ccc;
+    }
+
+    .error {
+      color: #ff8a8a;
+    }
+
+    .loading {
+      color: #c9a227;
+    }
+
+    @media (max-width: 600px) {
+      .row {
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .value {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+    <h1>PRECISION BURN STUDIO</h1>
+    <div class="tagline">You bring the idea. We bring it to life.</div>
+  </header>
+
+  <main class="container">
+
+    <div id="loading" class="card message loading">
+      Loading your quote...
+    </div>
+
+    <div id="error" class="card message error" style="display:none;">
+      We were unable to locate your quote.
+    </div>
+
+    <div id="quoteCard" class="card" style="display:none;">
+
+      <h2>Custom Quote</h2>
+
+      <div class="quote-number">
+        Quote #: <strong id="quoteNumber"></strong>
+      </div>
+
+      <div class="row">
+        <span class="label">Customer</span>
+        <span class="value" id="customerName"></span>
+      </div>
+
+      <div class="section">
+
+        <div class="row">
+          <span class="label">Project Type</span>
+          <span class="value" id="projectType"></span>
+        </div>
+
+        <div class="row">
+          <span class="label">Description</span>
+          <span class="value" id="description"></span>
+        </div>
+
+        <div class="row">
+          <span class="label">Personalization</span>
+          <span class="value" id="personalization"></span>
+        </div>
+
+        <div class="row">
+          <span class="label">Quantity</span>
+          <span class="value" id="quantity"></span>
+        </div>
+
+        <div class="row">
+          <span class="label">Size</span>
+          <span class="value" id="size"></span>
+        </div>
+
+        <div class="row">
+          <span class="label">Material</span>
+          <span class="value" id="material"></span>
+        </div>
+
+      </div>
+
+      <div class="section">
+
+        <div class="row">
+          <span class="label">Subtotal</span>
+          <span class="value" id="subtotal"></span>
+        </div>
+
+        <div class="row">
+          <span class="label">Delivery</span>
+          <span class="value" id="delivery"></span>
+        </div>
+
+        <div class="row">
+          <span class="label">Shipping</span>
+          <span class="value" id="shipping"></span>
+        </div>
+
+        <div class="row total">
+          <span>Total</span>
+          <span id="total"></span>
+        </div>
+
+      </div>
+
+      <div class="section">
+
+        <div class="row">
+          <span class="label">Quote Expires</span>
+          <span class="value" id="expires"></span>
+        </div>
+
+      </div>
+
+      <div class="terms">
+        <strong>Custom Order Terms</strong>
+        <br><br>
+
+        By completing payment, you agree to the following:
+
+        <br><br>
+
+        Custom products are made specifically to your approved specifications.
+        You are responsible for ensuring all names, dates, wording, images,
+        measurements, and personalization details you provide are correct.
+
+        <br><br>
+
+        Once an order or design is approved, changes may not be possible without
+        additional charges.
+
+        <br><br>
+
+        Full payment is required before production begins.
+
+        <br><br>
+
+        Due to the custom nature of our products, custom orders are final sale
+        and are not eligible for returns, refunds, or exchanges due to changes
+        of mind, customer-provided errors, or dissatisfaction with an approved design.
+
+        <br><br>
+
+        If Precision Burn Studio makes an error that differs from the approved
+        order, please contact us so the matter can be reviewed.
+
+        <br><br>
+
+        Estimated production and delivery times may vary due to project
+        complexity, material availability, shipping, or circumstances beyond
+        our control.
+
+        <br><br>
+
+        Quotes are valid for 14 days unless otherwise stated.
+      </div>
+
+      <label class="checkbox">
+        <input type="checkbox" id="agreement">
+        <span>
+          I have reviewed my quote and agree to the Custom Order Terms.
+        </span>
+      </label>
+
+      <button id="payButton" disabled>
+        APPROVE QUOTE & PAY
+      </button>
+
+    </div>
+
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://novkaqylwqdtwceypyrk.supabase.co";
+
+    /*
+      IMPORTANT:
+      Replace the value below with your Supabase
+      Publishable/Anonymous key.
+
+      DO NOT put your Supabase secret/service-role key here.
+      DO NOT put your Stripe secret key here.
+    */
+    const SUPABASE_ANON_KEY =
+      "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+
+
+    function money(value) {
+      if (value === null || value === undefined || value === "") {
+        return "$0.00";
+      }
+
+      return "$" + Number(value).toFixed(2);
+    }
+
+
+    function text(value) {
+      return value === null || value === undefined || value === ""
+        ? "—"
+        : value;
+    }
+
+
+    async function loadQuote() {
+
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+
+      if (!token) {
+        showError();
+        return;
+      }
+
+      try {
+
+        const response = await fetch(
+          SUPABASE_URL +
+          "/rest/v1/rpc/get_customer_quote",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": SUPABASE_ANON_KEY,
+              "Authorization": "Bearer " + SUPABASE_ANON_KEY
+            },
+
+            body: JSON.stringify({
+              p_token: token
+            })
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Unable to retrieve quote.");
+        }
+
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+          showError();
+          return;
+        }
+
+        const quote = data[0];
+
+        document.getElementById("quoteNumber").textContent =
+          text(quote.quote_number);
+
+        document.getElementById("customerName").textContent =
+          text(quote.customer_name);
+
+        document.getElementById("projectType").textContent =
+          text(quote.project_type);
+
+        document.getElementById("description").textContent =
+          text(quote.project_description);
+
+        document.getElementById("personalization").textContent =
+          text(quote.personalization);
+
+        document.getElementById("quantity").textContent =
+          text(quote.quantity);
+
+        document.getElementById("size").textContent =
+          text(quote.size);
+
+        document.getElementById("material").textContent =
+          text(quote.material);
+
+        document.getElementById("subtotal").textContent =
+          money(quote.subtotal);
+
+        document.getElementById("delivery").textContent =
+          money(quote.delivery_fee);
+
+        document.getElementById("shipping").textContent =
+          money(quote.shipping_cost);
+
+        document.getElementById("total").textContent =
+          money(quote.total);
+
+        if (quote.expires_at) {
+          document.getElementById("expires").textContent =
+            new Date(quote.expires_at).toLocaleDateString();
+        } else {
+          document.getElementById("expires").textContent = "—";
+        }
+
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("quoteCard").style.display = "block";
+
+      } catch (error) {
+
+        console.error(error);
+        showError();
+
+      }
+    }
+
+
+    function showError() {
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("quoteCard").style.display = "none";
+      document.getElementById("error").style.display = "block";
+    }
+
+
+    document.getElementById("agreement").addEventListener(
+      "change",
+      function () {
+
+        document.getElementById("payButton").disabled =
+          !this.checked;
+
+      }
+    );
+
+
+    document.getElementById("payButton").addEventListener(
+      "click",
+      async function () {
+
+        const params =
+          new URLSearchParams(window.location.search);
+
+        const token = params.get("token");
+
+        if (!token) {
+          alert("Quote token not found.");
+          return;
+        }
+
+        /*
+          Stripe payment connection will be added here
+          after the secure Supabase Edge Function is created.
+        */
+
+        alert(
+          "Quote approved. Stripe payment connection is the next step."
+        );
+
+      }
+    );
+
+
+    loadQuote();
+  </script>
+
+</body>
+</html>
