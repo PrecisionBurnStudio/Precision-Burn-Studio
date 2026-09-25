@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Payment Received | Precision Burn Studio</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #111111;
+      color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 650px;
+      padding: 40px 25px;
+      text-align: center;
+      background: #1b1b1b;
+      border: 1px solid #555555;
+      border-radius: 12px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #d4af37;
+      font-size: 32px;
+    }
+
+    .check {
+      font-size: 58px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      line-height: 1.6;
+      color: #dddddd;
+    }
+
+    .quote-number {
+      margin: 25px 0;
+      padding: 15px;
+      background: #111111;
+      border-radius: 8px;
+      color: #d4af37;
+      font-weight: bold;
+    }
+
+    .notice {
+      font-size: 14px;
+      color: #aaaaaa;
+      margin-top: 25px;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 25px;
+      padding: 12px 22px;
+      background: #d4af37;
+      color: #111111;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 6px;
+    }
+
+    a:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="check">✓</div>
+
+    <h1>Thank You!</h1>
+
+    <p>
+      Your payment process has been completed.
+    </p>
+
+    <div
+      class="quote-number"
+      id="quoteNumber"
+    >
+      Quote: Loading...
+    </div>
+
+    <p>
+      Precision Burn Studio has received your payment information.
+      Your custom project can now move forward to the next stage.
+    </p>
+
+    <p class="notice">
+      Please keep your quote number for your records.
+      You will receive additional communication regarding your project
+      as it moves through production.
+    </p>
+
+    <a href="index.html">
+      Return to Precision Burn Studio
+    </a>
+
+  </div>
+
+  <script>
+    const params =
+      new URLSearchParams(window.location.search);
+
+    const quote =
+      params.get("quote");
+
+    const quoteNumber =
+      document.getElementById("quoteNumber");
+
+    if (quote) {
+      quoteNumber.textContent =
+        "Quote: " + quote;
+    } else {
+      quoteNumber.textContent =
+        "Payment received";
+    }
+  </script>
+
+</body>
+</html>
