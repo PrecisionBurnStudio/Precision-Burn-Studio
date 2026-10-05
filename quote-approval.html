@@ -147,6 +147,18 @@
       color: #c9a227;
     }
 
+    .status-paid {
+  color: #7CFC00;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.status-expired {
+  color: #ff8a8a;
+  font-size: 20px;
+  font-weight: bold;
+}
+
     @media (max-width: 600px) {
       .row {
         flex-direction: column;
@@ -256,6 +268,9 @@
         </div>
 
       </div>
+
+      <div id="quoteStatus" class="message" style="display:none;">
+</div>
 
       <div class="terms">
         <strong>Custom Order Terms</strong>
@@ -427,16 +442,93 @@
           money(quote.total);
 
         if (quote.expires_at) {
-          document.getElementById("expires").textContent =
-            new Date(quote.expires_at).toLocaleDateString();
-        } else {
-          document.getElementById("expires").textContent = "—";
-        }
+  document.getElementById("expires").textContent =
+    new Date(quote.expires_at).toLocaleDateString();
+} else {
+  document.getElementById("expires").textContent = "—";
+}
 
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("quoteCard").style.display = "block";
+// Check payment and expiration status.
+const quoteStatus =
+  document.getElementById("quoteStatus");
 
-      } catch (error) {
+const agreement =
+  document.getElementById("agreement");
+
+const payButton =
+  document.getElementById("payButton");
+
+const paymentStatus =
+  quote.payment_status
+    ? quote.payment_status.toUpperCase()
+    : "";
+
+let quoteExpired = false;
+
+if (quote.expires_at) {
+  const expirationTime =
+    new Date(quote.expires_at).getTime();
+
+  quoteExpired =
+    !Number.isFinite(expirationTime) ||
+    expirationTime < Date.now();
+}
+
+// Already paid
+if (paymentStatus === "PAID") {
+
+  quoteStatus.innerHTML =
+    "PAYMENT COMPLETE";
+
+  quoteStatus.className =
+    "message status-paid";
+
+  quoteStatus.style.display = "block";
+
+  agreement.checked = false;
+  agreement.disabled = true;
+
+  payButton.style.display = "none";
+
+}
+
+// Expired
+else if (quoteExpired) {
+
+  quoteStatus.innerHTML =
+    "QUOTE EXPIRED<br><br>" +
+    "<span style='font-size:14px;font-weight:normal;color:#ccc;'>" +
+    "Please contact Precision Burn Studio for an updated quote." +
+    "</span>";
+
+  quoteStatus.className =
+    "message status-expired";
+
+  quoteStatus.style.display = "block";
+
+  agreement.checked = false;
+  agreement.disabled = true;
+
+  payButton.style.display = "none";
+
+}
+
+// Valid unpaid quote
+else {
+
+  quoteStatus.style.display = "none";
+
+  agreement.disabled = false;
+  payButton.style.display = "block";
+  payButton.disabled = true;
+
+}
+
+document.getElementById("loading").style.display = "none";
+document.getElementById("quoteCard").style.display = "block";
+
+
+     } catch (error) {
 
         console.error(error);
         showError();
