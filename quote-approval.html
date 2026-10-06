@@ -159,6 +159,12 @@
   font-weight: bold;
 }
 
+    .status-cancelled {
+  color: #ff8a8a;
+  font-size: 20px;
+  font-weight: bold;
+}
+
     @media (max-width: 600px) {
       .row {
         flex-direction: column;
@@ -448,7 +454,7 @@
   document.getElementById("expires").textContent = "—";
 }
 
-// Check payment and expiration status.
+// Check payment, cancellation, and expiration status.
 const quoteStatus =
   document.getElementById("quoteStatus");
 
@@ -461,6 +467,11 @@ const payButton =
 const paymentStatus =
   quote.payment_status
     ? quote.payment_status.toUpperCase()
+    : "";
+
+const quoteStatusValue =
+  quote.status
+    ? quote.status.toUpperCase()
     : "";
 
 let quoteExpired = false;
@@ -482,6 +493,27 @@ if (paymentStatus === "PAID") {
 
   quoteStatus.className =
     "message status-paid";
+
+  quoteStatus.style.display = "block";
+
+  agreement.checked = false;
+  agreement.disabled = true;
+
+  payButton.style.display = "none";
+
+}
+
+// Cancelled
+else if (quoteStatusValue === "CANCELLED") {
+
+  quoteStatus.innerHTML =
+    "QUOTE CANCELED<br><br>" +
+    "<span style='font-size:14px;font-weight:normal;color:#ccc;'>" +
+    "This quote has been canceled. Please contact Precision Burn Studio if you have any questions." +
+    "</span>";
+
+  quoteStatus.className =
+    "message status-cancelled";
 
   quoteStatus.style.display = "block";
 
