@@ -83,6 +83,78 @@
       border-radius: 6px;
       color: #8aff9a;
     }
+
+     .quotes-section {
+      margin-top: 30px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .section-header h2 {
+      margin: 0;
+    }
+
+    #refreshQuotesButton {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #refreshQuotesButton:hover {
+      opacity: 0.85;
+    }
+
+    .quote-message {
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 6px;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 8px;
+    }
+
+    #quotesTable {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1000px;
+    }
+
+    #quotesTable th,
+    #quotesTable td {
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid #ccc;
+      vertical-align: top;
+    }
+
+    #quotesTable th {
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    #quotesTable td {
+      line-height: 1.4;
+    }
+
+    #quotesTable td:nth-child(4) {
+      min-width: 220px;
+    }
+
+    #quotesTable td:nth-child(6) {
+      white-space: nowrap;
+    }
+
   </style>
 </head>
 
@@ -121,6 +193,48 @@
       </div>
 
     </div>
+
+    <section class="quotes-section">
+
+      <div class="section-header">
+        <h2>Quotes</h2>
+
+        <button id="refreshQuotesButton" type="button">
+          Refresh Quotes
+        </button>
+      </div>
+
+      <div id="quoteMessage" class="quote-message">
+        Loading quotes...
+      </div>
+
+      <div class="table-wrapper">
+
+        <table id="quotesTable">
+
+          <thead>
+            <tr>
+              <th>Quote #</th>
+              <th>Customer</th>
+              <th>Project</th>
+              <th>Description</th>
+              <th>Qty</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th>Production</th>
+              <th>Expires</th>
+            </tr>
+          </thead>
+
+          <tbody id="quotesTableBody">
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
 
   </main>
 
@@ -183,7 +297,83 @@ const supabaseClient = window.supabase.createClient(
       });
 
     checkAuthentication();
+async function loadQuotes() {
+  const quoteMessage = document.getElementById("quoteMessage");
+  const quotesTableBody = document.getElementById("quotesTableBody");
 
+  quoteMessage.textContent = "Loading quotes...";
+  quoteMessage.style.display = "block";
+  quotesTableBody.innerHTML = "";
+
+  const { data, error } = await supabaseClient
+    .from("Quotes")
+    .select(`
+      Quote_number,
+      Customer_name,
+      Project_type,
+      Project_description,
+      Quantity,
+      Total,
+      Status,
+      Payment_status,
+      Production_status,
+      Expires_at
+    `)
+    .order("Issued_at", { ascending: false });
+
+  if (error) {
+    console.error("Error loading quotes:", error);
+
+    quoteMessage.textContent =
+      "Unable to load quotes. Please try again.";
+
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    quoteMessage.textContent = "No quotes found.";
+    return;
+  }
+
+  quoteMessage.style.display = "none";
+
+  data.forEach(function(quote) {
+    const row = document.createElement("tr");
+
+    const expires = quote.Expires_at
+      ? new Date(quote.Expires_at).toLocaleDateString()
+      : "—";
+
+    const total = quote.Total !== null && quote.Total !== undefined
+      ? "$" + Number(quote.Total).toFixed(2)
+      : "—";
+
+    row.innerHTML = `
+      <td>${quote.Quote_number ?? "—"}</td>
+      <td>${quote.Customer_name ?? "—"}</td>
+      <td>${quote.Project_type ?? "—"}</td>
+      <td>${quote.Project_description ?? "—"}</td>
+      <td>${quote.Quantity ?? "—"}</td>
+      <td>${total}</td>
+      <td>${quote.Status ?? "—"}</td>
+      <td>${quote.Payment_status ?? "—"}</td>
+      <td>${quote.Production_status ?? "—"}</td>
+      <td>${expires}</td>
+    `;
+
+    quotesTableBody.appendChild(row);
+  });
+
+  quoteMessage.textContent =
+    `${data.length} quote${data.length === 1 ? "" : "s"} loaded.`;
+  quoteMessage.style.display = "block";
+}
+
+document
+  .getElementById("refreshQuotesButton")
+  .addEventListener("click", loadQuotes);
+
+loadQuotes();
   </script>
 
 </body>
