@@ -154,7 +154,78 @@
     #quotesTable td:nth-child(6) {
       white-space: nowrap;
     }
+ .quote-details-section {
+      margin-top: 30px;
+      background: #1c1c1c;
+      border: 1px solid #444;
+      border-radius: 10px;
+      padding: 25px;
+    }
 
+    .quote-details-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px 25px;
+    }
+
+    .quote-detail-item {
+      padding: 12px;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 6px;
+    }
+
+    .quote-detail-label {
+      display: block;
+      margin-bottom: 5px;
+      color: #aaa;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .quote-detail-value {
+      color: #fff;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .quote-detail-full {
+      grid-column: 1 / -1;
+    }
+
+    .quote-number-button {
+      background: none;
+      border: none;
+      padding: 0;
+      color: #d4af37;
+      font-weight: bold;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: inherit;
+    }
+
+    .quote-number-button:hover {
+      opacity: 0.8;
+    }
+
+    #closeQuoteDetailsButton {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    @media (max-width: 700px) {
+      .quote-details-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quote-detail-full {
+        grid-column: auto;
+      }
+    }
   </style>
 </head>
 
@@ -235,7 +306,27 @@
       </div>
 
     </section>
+<section
+      id="quoteDetailsSection"
+      class="quote-details-section"
+      style="display: none;"
+    >
 
+      <div class="section-header">
+        <h2>Quote Details</h2>
+
+        <button
+          id="closeQuoteDetailsButton"
+          type="button"
+        >
+          Close
+        </button>
+      </div>
+
+      <div id="quoteDetailsContent">
+      </div>
+
+    </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -348,18 +439,26 @@ async function loadQuotes() {
       ? "$" + Number(quote.Total).toFixed(2)
       : "—";
 
-    row.innerHTML = `
-      <td>${quote.Quote_number ?? "—"}</td>
-      <td>${quote.Customer_name ?? "—"}</td>
-      <td>${quote.Project_type ?? "—"}</td>
-      <td>${quote.Project_description ?? "—"}</td>
-      <td>${quote.Quantity ?? "—"}</td>
-      <td>${total}</td>
-      <td>${quote.Status ?? "—"}</td>
-      <td>${quote.Payment_status ?? "—"}</td>
-      <td>${quote.Production_status ?? "—"}</td>
-      <td>${expires}</td>
-    `;
+   row.innerHTML = `
+  <td>
+    <button
+      class="quote-number-button"
+      type="button"
+      data-quote-number="${escapeHtml(quote.Quote_number)}"
+    >
+      ${escapeHtml(quote.Quote_number)}
+    </button>
+  </td>
+  <td>${escapeHtml(quote.Customer_name)}</td>
+  <td>${escapeHtml(quote.Project_type)}</td>
+  <td>${escapeHtml(quote.Project_description)}</td>
+  <td>${escapeHtml(quote.Quantity)}</td>
+  <td>${escapeHtml(total)}</td>
+  <td>${escapeHtml(quote.Status)}</td>
+  <td>${escapeHtml(quote.Payment_status)}</td>
+  <td>${escapeHtml(quote.Production_status)}</td>
+  <td>${escapeHtml(expires)}</td>
+`;
 
     quotesTableBody.appendChild(row);
   });
@@ -374,6 +473,275 @@ document
   .addEventListener("click", loadQuotes);
 
 loadQuotes();
+   function escapeHtml(value) {
+  return String(value ?? "—")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+async function showQuoteDetails(quoteNumber) {
+  const detailsSection =
+    document.getElementById("quoteDetailsSection");
+
+  const detailsContent =
+    document.getElementById("quoteDetailsContent");
+
+  detailsContent.innerHTML =
+    "<p>Loading quote details...</p>";
+
+  detailsSection.style.display = "block";
+
+  const { data, error } = await supabaseClient
+    .from("Quotes")
+    .select(`
+      Quote_number,
+      Customer_name,
+      Customer_email,
+      Customer_phone,
+      Project_type,
+      Project_description,
+      Personalization,
+      Quantity,
+      Size,
+      Material,
+      Design_reference,
+      Subtotal,
+      Delivery_fee,
+      Shipping_cost,
+      Total,
+      Status,
+      Issued_at,
+      Expires_at,
+      Payment_status,
+      Preferred_completion_date,
+      Production_status,
+      Customer_notes,
+      Internal_notes
+    `)
+    .eq("Quote_number", quoteNumber)
+    .single();
+
+  if (error) {
+    console.error("Error loading quote details:", error);
+
+    detailsContent.innerHTML =
+      "<p>Unable to load quote details. Please try again.</p>";
+
+    return;
+  }
+
+  function formatDate(value) {
+    if (!value) {
+      return "—";
+    }
+
+    return escapeHtml(new Date(value).toLocaleString());
+  }
+
+  function formatMoney(value) {
+    if (value === null || value === undefined) {
+      return "—";
+    }
+
+    return escapeHtml("$" + Number(value).toFixed(2));
+  }
+
+  detailsContent.innerHTML = `
+    <div class="quote-details-grid">
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Quote Number</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Quote_number)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Customer</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Customer_name)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Email</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Customer_email)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Phone</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Customer_phone)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Project Type</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Project_type)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Quantity</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Quantity)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item quote-detail-full">
+        <span class="quote-detail-label">Project Description</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Project_description)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item quote-detail-full">
+        <span class="quote-detail-label">Personalization</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Personalization)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Size</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Size)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Material</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Material)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item quote-detail-full">
+        <span class="quote-detail-label">Design Reference</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Design_reference)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Subtotal</span>
+        <div class="quote-detail-value">
+          ${formatMoney(data.Subtotal)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Delivery Fee</span>
+        <div class="quote-detail-value">
+          ${formatMoney(data.Delivery_fee)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Shipping Cost</span>
+        <div class="quote-detail-value">
+          ${formatMoney(data.Shipping_cost)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Total</span>
+        <div class="quote-detail-value">
+          ${formatMoney(data.Total)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Quote Status</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Status)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Payment Status</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Payment_status)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Preferred Completion</span>
+        <div class="quote-detail-value">
+          ${formatDate(data.Preferred_completion_date)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Production Status</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Production_status)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Issued</span>
+        <div class="quote-detail-value">
+          ${formatDate(data.Issued_at)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Expires</span>
+        <div class="quote-detail-value">
+          ${formatDate(data.Expires_at)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item quote-detail-full">
+        <span class="quote-detail-label">Customer Notes</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Customer_notes)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item quote-detail-full">
+        <span class="quote-detail-label">Internal Notes</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(data.Internal_notes)}
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+    document.addEventListener("click", function(event) {
+  const button =
+    event.target.closest(".quote-number-button");
+
+  if (!button) {
+    return;
+  }
+
+  const quoteNumber =
+    button.getAttribute("data-quote-number");
+
+  if (quoteNumber) {
+    showQuoteDetails(quoteNumber);
+  }
+});
+
+document
+  .getElementById("closeQuoteDetailsButton")
+  .addEventListener("click", function() {
+
+    document.getElementById(
+      "quoteDetailsSection"
+    ).style.display = "none";
+
+  });
+
   </script>
 
 </body>
