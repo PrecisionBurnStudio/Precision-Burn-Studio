@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Precision Burn Studio — Admin Dashboard</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    .header {
+      background: #1c1c1c;
+      border-bottom: 1px solid #444;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .header h1 {
+      margin: 0;
+      color: #d4af37;
+      font-size: 24px;
+    }
+
+    .header p {
+      margin: 5px 0 0;
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    .logout-button {
+      background: #d4af37;
+      color: #111;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .logout-button:hover {
+      opacity: 0.9;
+    }
+
+    .dashboard {
+      width: 90%;
+      max-width: 1100px;
+      margin: 40px auto;
+    }
+
+    .welcome-box {
+      background: #1c1c1c;
+      border: 1px solid #444;
+      border-radius: 10px;
+      padding: 30px;
+    }
+
+    .welcome-box h2 {
+      margin-top: 0;
+      color: #d4af37;
+    }
+
+    .welcome-box p {
+      color: #ccc;
+      line-height: 1.6;
+    }
+
+    .status {
+      margin-top: 25px;
+      padding: 15px;
+      background: #173a20;
+      border: 1px solid #296b38;
+      border-radius: 6px;
+      color: #8aff9a;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+
+    <div>
+      <h1>Precision Burn Studio</h1>
+      <p>Admin Dashboard</p>
+    </div>
+
+    <button
+      id="logoutButton"
+      class="logout-button"
+      type="button"
+    >
+      Log Out
+    </button>
+
+  </header>
+
+  <main class="dashboard">
+
+    <div class="welcome-box">
+
+      <h2>Welcome, Gregory</h2>
+
+      <p>
+        You are successfully logged into the
+        Precision Burn Studio admin area.
+      </p>
+
+      <div class="status">
+        Admin authentication verified.
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+
+    const SUPABASE_URL =
+      "https://novkaqylwqdtwceypyrk.supabase.co";
+
+    const SUPABASE_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vdmthcXlsd3FkdHdjZXlweXJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDk5NDMsImV4cCI6MjEwNTU4NTk0M30.5byp2I56KsiZ9NceDOBBUgTK_e5oR3P9It8lABbgd8M";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+    async function checkAuthentication() {
+
+      const {
+        data: {
+          session
+        }
+      } = await supabaseClient.auth.getSession();
+
+      if (!session) {
+
+        window.location.href =
+          "admin.html";
+
+        return;
+      }
+
+    }
+
+    document
+      .getElementById("logoutButton")
+      .addEventListener("click", async function() {
+
+        await supabaseClient.auth.signOut();
+
+        window.location.href =
+          "admin.html";
+
+      });
+
+    checkAuthentication();
+
+  </script>
+
+</body>
+</html>
