@@ -208,14 +208,16 @@
         return;
       }
 
-      message.textContent =
-        "Login successful.";
+     message.textContent =
+  "Login successful.";
 
-      message.className = "success";
-      message.style.display = "block";
+message.className = "success";
+message.style.display = "block";
 
-      console.log("Authenticated user:", data.user);
+console.log("Authenticated user:", data.user);
 
+window.location.href =
+  "admin-dashboard.html";
     });
 
   </script>
