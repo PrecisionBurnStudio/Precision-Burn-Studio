@@ -216,6 +216,77 @@
       cursor: pointer;
       font-weight: bold;
     }
+#editQuoteButton,
+#saveQuoteButton,
+#cancelEditButton {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#editQuoteButton {
+  background: #d4af37;
+  color: #111;
+}
+
+#saveQuoteButton {
+  background: #2f7d32;
+  color: #fff;
+}
+
+#cancelEditButton {
+  background: #555;
+  color: #fff;
+}
+
+#editQuoteButton:hover,
+#saveQuoteButton:hover,
+#cancelEditButton:hover {
+  opacity: 0.85;
+}
+
+.edit-field {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px;
+  margin-top: 5px;
+  background: #1c1c1c;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+.edit-field:focus {
+  outline: none;
+  border-color: #d4af37;
+}
+
+textarea.edit-field {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.edit-mode-notice {
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #332d13;
+  border: 1px solid #d4af37;
+  border-radius: 6px;
+  color: #f1d76a;
+}
+
+.locked-notice {
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #3a1717;
+  border: 1px solid #8b3a3a;
+  border-radius: 6px;
+  color: #ff9b9b;
+}
 
     @media (max-width: 700px) {
       .quote-details-grid {
@@ -312,16 +383,28 @@
       style="display: none;"
     >
 
-      <div class="section-header">
-        <h2>Quote Details</h2>
+     <div class="section-header">
+  <h2>Quote Details</h2>
 
-        <button
-          id="closeQuoteDetailsButton"
-          type="button"
-        >
-          Close
-        </button>
-      </div>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+
+    <button
+      id="editQuoteButton"
+      type="button"
+      style="display: none;"
+    >
+      Edit Quote
+    </button>
+
+    <button
+      id="closeQuoteDetailsButton"
+      type="button"
+    >
+      Close
+    </button>
+
+  </div>
+</div>
 
       <div id="quoteDetailsContent">
       </div>
@@ -482,6 +565,8 @@ loadQuotes();
     .replace(/'/g, "&#039;");
 }
 
+let currentQuoteData = null;
+
 async function showQuoteDetails(quoteNumber) {
   const detailsSection =
     document.getElementById("quoteDetailsSection");
@@ -489,10 +574,14 @@ async function showQuoteDetails(quoteNumber) {
   const detailsContent =
     document.getElementById("quoteDetailsContent");
 
+  const editButton =
+    document.getElementById("editQuoteButton");
+
   detailsContent.innerHTML =
     "<p>Loading quote details...</p>";
 
   detailsSection.style.display = "block";
+  editButton.style.display = "none";
 
   const { data, error } = await supabaseClient
     .from("Quotes")
@@ -533,6 +622,8 @@ async function showQuoteDetails(quoteNumber) {
     return;
   }
 
+  currentQuoteData = data;
+
   function formatDate(value) {
     if (!value) {
       return "—";
@@ -549,7 +640,31 @@ async function showQuoteDetails(quoteNumber) {
     return escapeHtml("$" + Number(value).toFixed(2));
   }
 
+  let actionArea = "";
+
+  if (data.Payment_status === "PAID") {
+
+    actionArea = `
+      <div class="locked-notice">
+        🔒 <strong>ORDER LOCKED — PAYMENT COMPLETED</strong><br>
+        This paid order cannot be edited.
+      </div>
+    `;
+
+  } else {
+
+    actionArea = `
+      <div class="edit-mode-notice">
+        This quote has not been paid and is currently editable.
+      </div>
+    `;
+
+    editButton.style.display = "inline-block";
+  }
+
   detailsContent.innerHTML = `
+    ${actionArea}
+
     <div class="quote-details-grid">
 
       <div class="quote-detail-item">
@@ -716,6 +831,224 @@ async function showQuoteDetails(quoteNumber) {
     </div>
   `;
 }
+    function enterEditMode() {
+
+  if (!currentQuoteData) {
+    return;
+  }
+
+  if (currentQuoteData.Payment_status === "PAID") {
+    alert("This order is locked because payment has been completed.");
+    return;
+  }
+
+  const detailsContent =
+    document.getElementById("quoteDetailsContent");
+
+  detailsContent.innerHTML = `
+    <div class="edit-mode-notice">
+      <strong>Edit Mode</strong><br>
+      Changes are being prepared for this quote.
+      The Save button is currently in test mode and will not change the database yet.
+    </div>
+
+    <div class="quote-details-grid">
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Quote Number</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(currentQuoteData.Quote_number)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Customer</span>
+        <div class="quote-detail-value">
+          ${escapeHtml(currentQuoteData.Customer_name)}
+        </div>
+      </div>
+
+      <div class="quote-detail-item quote-detail-full">
+        <span class="quote-detail-label">Description</span>
+        <textarea
+          id="editDescription"
+          class="edit-field"
+        >${escapeHtml(currentQuoteData.Project_description)}</textarea>
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Quantity</span>
+        <input
+          id="editQuantity"
+          class="edit-field"
+          type="number"
+          min="1"
+          value="${escapeHtml(currentQuoteData.Quantity)}"
+        >
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Size</span>
+        <input
+          id="editSize"
+          class="edit-field"
+          type="text"
+          value="${escapeHtml(currentQuoteData.Size)}"
+        >
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Subtotal</span>
+        <input
+          id="editSubtotal"
+          class="edit-field"
+          type="number"
+          step="0.01"
+          min="0"
+          value="${currentQuoteData.Subtotal ?? ""}"
+        >
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Delivery Fee</span>
+        <input
+          id="editDelivery"
+          class="edit-field"
+          type="number"
+          step="0.01"
+          min="0"
+          value="${currentQuoteData.Delivery_fee ?? ""}"
+        >
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Shipping Cost</span>
+        <input
+          id="editShipping"
+          class="edit-field"
+          type="number"
+          step="0.01"
+          min="0"
+          value="${currentQuoteData.Shipping_cost ?? ""}"
+        >
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Final Customer Price</span>
+        <input
+          id="editTotal"
+          class="edit-field"
+          type="number"
+          step="0.01"
+          min="0"
+          value="${currentQuoteData.Total ?? ""}"
+        >
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Status</span>
+        <input
+          id="editStatus"
+          class="edit-field"
+          type="text"
+          value="${escapeHtml(currentQuoteData.Status)}"
+        >
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Production Status</span>
+        <input
+          id="editProductionStatus"
+          class="edit-field"
+          type="text"
+          value="${escapeHtml(currentQuoteData.Production_status)}"
+        >
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Preferred Completion</span>
+        <input
+          id="editCompletion"
+          class="edit-field"
+          type="datetime-local"
+        >
+      </div>
+
+      <div class="quote-detail-item">
+        <span class="quote-detail-label">Expiration</span>
+        <input
+          id="editExpiration"
+          class="edit-field"
+          type="datetime-local"
+        >
+      </div>
+
+      <div class="quote-detail-item quote-detail-full">
+        <span class="quote-detail-label">Customer Notes</span>
+        <textarea
+          id="editCustomerNotes"
+          class="edit-field"
+        >${escapeHtml(currentQuoteData.Customer_notes)}</textarea>
+      </div>
+
+      <div class="quote-detail-item quote-detail-full">
+        <span class="quote-detail-label">Internal Notes</span>
+        <textarea
+          id="editInternalNotes"
+          class="edit-field"
+        >${escapeHtml(currentQuoteData.Internal_notes)}</textarea>
+      </div>
+
+    </div>
+
+    <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+
+      <button
+        id="saveQuoteButton"
+        type="button"
+      >
+        Save Quote
+      </button>
+
+      <button
+        id="cancelEditButton"
+        type="button"
+      >
+        Cancel Edit
+      </button>
+
+    </div>
+  `;
+
+  setDateTimeInput(
+    "editCompletion",
+    currentQuoteData.Preferred_completion_date
+  );
+
+  setDateTimeInput(
+    "editExpiration",
+    currentQuoteData.Expires_at
+  );
+}
+    function setDateTimeInput(elementId, value) {
+
+  const input = document.getElementById(elementId);
+
+  if (!input || !value) {
+    return;
+  }
+
+  const date = new Date(value);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  input.value =
+    `${year}-${month}-${day}T${hours}:${minutes}`;
+}
     document.addEventListener("click", function(event) {
   const button =
     event.target.closest(".quote-number-button");
@@ -741,6 +1074,35 @@ document
     ).style.display = "none";
 
   });
+    document
+  .getElementById("editQuoteButton")
+  .addEventListener("click", function() {
+
+    enterEditMode();
+
+  });
+
+document.addEventListener("click", function(event) {
+
+  if (event.target.id === "cancelEditButton") {
+
+    if (currentQuoteData) {
+      showQuoteDetails(currentQuoteData.Quote_number);
+    }
+
+    return;
+  }
+
+  if (event.target.id === "saveQuoteButton") {
+
+    alert(
+      "TEST MODE: No changes were saved to the database."
+    );
+
+    return;
+  }
+
+});
 
   </script>
 
