@@ -1093,14 +1093,128 @@ document.addEventListener("click", function(event) {
     return;
   }
 
-  if (event.target.id === "saveQuoteButton") {
+ if (event.target.id === "saveQuoteButton") {
+
+  const quoteNumber = currentQuoteData?.Quote_number;
+
+  if (!quoteNumber) {
+    alert("Unable to save: quote number is missing.");
+    return;
+  }
+
+  const quantity = Number(
+    document.getElementById("editQuantity").value
+  );
+
+  const subtotal = Number(
+    document.getElementById("editSubtotal").value
+  );
+
+  const deliveryFee = Number(
+    document.getElementById("editDelivery").value
+  );
+
+  const shippingCost = Number(
+    document.getElementById("editShipping").value
+  );
+
+  const total = Number(
+    document.getElementById("editTotal").value
+  );
+
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    alert("Quantity must be a whole number greater than 0.");
+    return;
+  }
+
+  if (
+    !Number.isFinite(subtotal) ||
+    subtotal < 0 ||
+    !Number.isFinite(deliveryFee) ||
+    deliveryFee < 0 ||
+    !Number.isFinite(shippingCost) ||
+    shippingCost < 0 ||
+    !Number.isFinite(total) ||
+    total < 0
+  ) {
+    alert("Please enter valid pricing values.");
+    return;
+  }
+
+  const completionValue =
+    document.getElementById("editCompletion").value;
+
+  const expirationValue =
+    document.getElementById("editExpiration").value;
+
+  const preferredCompletionDate =
+    completionValue
+      ? new Date(completionValue).toISOString()
+      : null;
+
+  const expiresAt =
+    expirationValue
+      ? new Date(expirationValue).toISOString()
+      : null;
+
+  const { data, error } = await supabaseClient.rpc(
+    "admin_update_unpaid_quote",
+    {
+      p_quote_number: quoteNumber,
+      p_description:
+        document.getElementById("editDescription").value,
+      p_quantity: quantity,
+      p_size:
+        document.getElementById("editSize").value,
+      p_subtotal: subtotal,
+      p_delivery_fee: deliveryFee,
+      p_shipping_cost: shippingCost,
+      p_total: total,
+      p_status:
+        document.getElementById("editStatus").value,
+      p_production_status:
+        document.getElementById("editProductionStatus").value,
+      p_preferred_completion_date:
+        preferredCompletionDate,
+      p_expires_at:
+        expiresAt,
+      p_customer_notes:
+        document.getElementById("editCustomerNotes").value,
+      p_internal_notes:
+        document.getElementById("editInternalNotes").value
+    }
+  );
+
+  if (error) {
+    console.error("Save Quote RPC error:", error);
 
     alert(
-      "TEST MODE: No changes were saved to the database."
+      "Save failed. The quote was not changed.\n\n" +
+      error.message
     );
 
     return;
   }
+
+  if (!data || data.success !== true) {
+
+    alert(
+      data?.error ||
+      "Save failed. The quote was not changed."
+    );
+
+    return;
+  }
+
+  alert(
+    data.message ||
+    "Quote updated successfully."
+  );
+
+  showQuoteDetails(quoteNumber);
+
+  return;
+}
 
 });
 
