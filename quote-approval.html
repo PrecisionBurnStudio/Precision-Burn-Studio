@@ -175,6 +175,25 @@
         text-align: left;
       }
     }
+    .order-tracking {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid #b89445;
+  border-radius: 8px;
+  background: #1b1b1b;
+  color: #f2f2f2;
+}
+
+.order-tracking h3 {
+  margin-top: 0;
+  color: #d4af5a;
+}
+
+.order-tracking p {
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+
   </style>
 </head>
 
@@ -277,7 +296,24 @@
 
       <div id="quoteStatus" class="message" style="display:none;">
 </div>
+<div id="orderTracking" class="order-tracking">
+  <h3>Order Tracking</h3>
 
+  <p>
+    <strong>Payment:</strong>
+    <span id="trackingPayment">Loading...</span>
+  </p>
+
+  <p>
+    <strong>Production:</strong>
+    <span id="trackingProduction">Loading...</span>
+  </p>
+
+  <p id="trackingCompletionRow" style="display:none;">
+    <strong>Preferred Completion:</strong>
+    <span id="trackingCompletion"></span>
+  </p>
+</div>
       <div class="terms">
         <strong>Custom Order Terms</strong>
         <br><br>
@@ -366,7 +402,43 @@
         ? "—"
         : value;
     }
+function updateOrderTracking(quote) {
+  const payment = String(quote.payment_status || "UNPAID")
+    .trim()
+    .toUpperCase();
 
+  const production = String(
+    quote.production_status || "NOT STARTED"
+  )
+    .trim()
+    .replace(/_/g, " ");
+
+   let paymentMessage = payment;
+
+  if (payment === "PAID") {
+    paymentMessage = "Payment received";
+  } else if (payment === "UNPAID") {
+    paymentMessage = "Awaiting payment";
+  }
+
+  document.getElementById("trackingPayment").textContent =
+    paymentMessage;
+
+  document.getElementById("trackingProduction").textContent =
+    production;
+
+  const completionRow =
+    document.getElementById("trackingCompletionRow");
+
+  if (quote.preferred_completion_date) {
+    document.getElementById("trackingCompletion").textContent =
+      quote.preferred_completion_date;
+
+    completionRow.style.display = "block";
+  } else {
+    completionRow.style.display = "none";
+  }
+}
 
     async function loadQuote() {
 
@@ -410,7 +482,7 @@
         }
 
         const quote = data[0];
-
+updateOrderTracking(quote);
         document.getElementById("quoteNumber").textContent =
           text(quote.quote_number);
 
