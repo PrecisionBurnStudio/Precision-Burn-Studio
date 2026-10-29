@@ -1115,6 +1115,51 @@ document.addEventListener("click", async function(event) {
 
     return;
   }
+ if (event.target.id === "saveProductionStatusButton") {
+
+    const quoteNumber = currentQuoteData?.Quote_number;
+    const statusSelect = document.getElementById("productionStatusSelect");
+    const message = document.getElementById("productionStatusMessage");
+
+    if (!quoteNumber || !statusSelect) {
+      alert("Unable to save: quote number or status is missing.");
+      return;
+    }
+
+    const newStatus = statusSelect.value;
+
+    const { data, error } = await supabaseClient.rpc(
+      "admin_update_production_status",
+      {
+        p_quote_number: quoteNumber,
+        p_production_status: newStatus
+      }
+    );
+
+    if (error) {
+      alert("Production status was not saved: " + error.message);
+      return;
+    }
+
+    if (!data || data.success !== true) {
+      alert(
+        "Production status was not saved: " +
+        (data?.error || "Unknown error.")
+      );
+      return;
+    }
+
+    if (message) {
+      message.textContent = "Production status saved successfully.";
+    }
+
+    await loadQuotes();
+    await showQuoteDetails(quoteNumber);
+
+    alert("Production status updated successfully.");
+
+    return;
+  }
 
  if (event.target.id === "saveQuoteButton") {
 
