@@ -801,6 +801,29 @@ async function showQuoteDetails(quoteNumber) {
       </div>
 
       <div class="quote-detail-item">
+        <span class="quote-detail-label">Update Production Status</span>
+        <div class="quote-detail-value">
+          <select id="productionStatusSelect">
+            <option value="NOT STARTED" ${data.Production_status === "NOT STARTED" ? "selected" : ""}>Not Started</option>
+            <option value="DESIGNING" ${data.Production_status === "DESIGNING" ? "selected" : ""}>Designing</option>
+            <option value="READY FOR PRODUCTION" ${data.Production_status === "READY FOR PRODUCTION" ? "selected" : ""}>Ready for Production</option>
+            <option value="IN PRODUCTION" ${data.Production_status === "IN PRODUCTION" ? "selected" : ""}>In Production</option>
+            <option value="ENGRAVING / ASSEMBLY" ${data.Production_status === "ENGRAVING / ASSEMBLY" ? "selected" : ""}>Engraving / Assembly</option>
+            <option value="QUALITY CHECK" ${data.Production_status === "QUALITY CHECK" ? "selected" : ""}>Quality Check</option>
+            <option value="READY FOR DELIVERY" ${data.Production_status === "READY FOR DELIVERY" ? "selected" : ""}>Ready for Delivery</option>
+            <option value="SHIPPED" ${data.Production_status === "SHIPPED" ? "selected" : ""}>Shipped</option>
+            <option value="COMPLETED" ${data.Production_status === "COMPLETED" ? "selected" : ""}>Completed</option>
+          </select>
+
+          <button type="button" id="saveProductionStatusButton">
+            Save Production Status
+          </button>
+
+          <div id="productionStatusMessage"></div>
+        </div>
+      </div>
+
+      <div class="quote-detail-item">
         <span class="quote-detail-label">Issued</span>
         <div class="quote-detail-value">
           ${formatDate(data.Issued_at)}
