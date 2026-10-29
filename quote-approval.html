@@ -411,21 +411,79 @@ function updateOrderTracking(quote) {
     quote.production_status || "NOT STARTED"
   )
     .trim()
+    .toUpperCase()
     .replace(/_/g, " ");
 
-   let paymentMessage = payment;
+  let paymentMessage = payment;
 
   if (payment === "PAID") {
     paymentMessage = "Payment received";
   } else if (payment === "UNPAID") {
     paymentMessage = "Awaiting payment";
+  } else if (payment === "PENDING") {
+    paymentMessage = "Payment processing";
+  } else if (payment === "FAILED") {
+    paymentMessage = "Payment unsuccessful";
+  } else if (payment === "CANCELED" || payment === "CANCELLED") {
+    paymentMessage = "Payment canceled";
   }
 
   document.getElementById("trackingPayment").textContent =
     paymentMessage;
 
+  const productionMessages = {
+    "NOT STARTED": {
+      title: "Order Received",
+      message: "Your order is awaiting the start of production."
+    },
+    "DESIGNING": {
+      title: "Designing Your Item",
+      message: "Your custom design is being prepared."
+    },
+    "READY FOR PRODUCTION": {
+      title: "Ready for Production",
+      message: "Your design is ready, and your item is next in line to be made."
+    },
+    "IN PRODUCTION": {
+      title: "In Production",
+      message: "Your custom item is being made."
+    },
+    "ENGRAVING / ASSEMBLY": {
+      title: "Engraving and Assembly",
+      message: "Your item is being engraved and assembled."
+    },
+    "QUALITY CHECK": {
+      title: "Quality Check",
+      message: "Your item is being checked to make sure it meets our quality standards."
+    },
+    "READY FOR DELIVERY": {
+      title: "Ready for Delivery",
+      message: "Your order is finished and ready for delivery or its next shipping step."
+    },
+    "SHIPPED": {
+      title: "Shipped",
+      message: "Your order has been shipped."
+    },
+    "COMPLETED": {
+      title: "Order Completed",
+      message: "Your order is complete. Thank you for choosing Precision Burn Studio!"
+    }
+  };
+
+  const productionInfo = productionMessages[production] || {
+    title: production,
+    message: "Your order's production status has been updated."
+  };
+
   document.getElementById("trackingProduction").textContent =
-    production;
+    productionInfo.title;
+
+  const productionMessageElement =
+    document.getElementById("trackingProductionMessage");
+
+  if (productionMessageElement) {
+    productionMessageElement.textContent = productionInfo.message;
+  }
 
   const completionRow =
     document.getElementById("trackingCompletionRow");
