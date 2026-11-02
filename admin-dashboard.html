@@ -1286,7 +1286,59 @@ document.addEventListener("click", async function(event) {
 
 });
 
-  </script>
+</script>
+
+<!-- MATRIX PRICING CALCULATOR -->
+<section id="matrixCalculator" class="matrix-calculator">
+  <h2>Matrix Pricing Calculator</h2>
+  <p>Internal pricing tool — review all suggested prices before creating a customer quote.</p>
+
+  <label for="matrixProduct">Product Category</label>
+  <select id="matrixProduct">
+    <option value="keychain">Wooden Keychains</option>
+    <option value="ornament">Wood Ornaments</option>
+    <option value="cake">Wedding Cake Toppers</option>
+    <option value="photo">Photo Engravings</option>
+    <option value="plaque">Couple / Family Plaques</option>
+    <option value="sign">Name / Word Signs</option>
+    <option value="gift">Personalized Gifts</option>
+    <option value="memorial">Memorial Pieces / Awards</option>
+    <option value="bridal">Bridal Party Gifts</option>
+    <option value="favor">Wedding Favors</option>
+    <option value="unavailable" disabled>Tumblers / Glassware — Coming Soon</option>
+  </select>
+
+  <label for="matrixComplexity">Project Complexity</label>
+  <select id="matrixComplexity">
+    <option value="simple">Simple</option>
+    <option value="moderate" selected>Moderate</option>
+    <option value="detailed">Highly Detailed</option>
+  </select>
+
+  <label for="matrixLength">Length (inches)</label>
+  <input type="number" id="matrixLength" min="0" step="0.01" placeholder="Enter length">
+
+  <label for="matrixWidth">Width (inches)</label>
+  <input type="number" id="matrixWidth" min="0" step="0.01" placeholder="Enter width">
+
+  <label for="matrixQuantity">Quantity</label>
+  <input type="number" id="matrixQuantity" min="1" step="1" value="1">
+
+  <label for="matrixPersonalization">Personalization / Project Details</label>
+  <textarea id="matrixPersonalization" rows="3" placeholder="Names, dates, messages, special details..."></textarea>
+
+  <button type="button" id="calculateMatrixPrice">Calculate Suggested Price</button>
+
+  <div id="matrixPriceResult" aria-live="polite">
+    <p>Your suggested price will appear here.</p>
+  </div>
+
+  <label for="matrixAdjustedPrice">Your Final Unit Price ($)</label>
+  <input type="number" id="matrixAdjustedPrice" min="0" step="0.01" placeholder="Enter final unit price">
+
+  <p id="matrixFinalTotal">Final total: Not calculated</p>
+</section>
+<!-- END MATRIX PRICING CALCULATOR -->
 
 </body>
 </html>
