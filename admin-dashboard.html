@@ -1339,6 +1339,82 @@ document.addEventListener("click", async function(event) {
   <p id="matrixFinalTotal">Final total: Not calculated</p>
 </section>
 <!-- END MATRIX PRICING CALCULATOR -->
+<script>
+// MATRIX PRICING CALCULATOR
 
+const matrixPrices = {
+  keychain: { simple: 7, moderate: 11, detailed: 15 },
+  ornament: { simple: 10, moderate: 18, detailed: 25 },
+  cake: { simple: 20, moderate: 33, detailed: 45 },
+  photo: { simple: 15, moderate: 37.50, detailed: 60 },
+  plaque: { simple: 20, moderate: 35, detailed: 50 },
+  sign: { simple: 15, moderate: 27.50, detailed: 40 },
+  gift: { simple: 15, moderate: 32.50, detailed: 50 },
+  memorial: { simple: 25, moderate: 50, detailed: 75 },
+  bridal: { simple: 10, moderate: 20, detailed: 30 },
+  favor: { simple: 5, moderate: 8.50, detailed: 12 }
+};
+
+const matrixProduct = document.getElementById("matrixProduct");
+const matrixComplexity = document.getElementById("matrixComplexity");
+const matrixQuantity = document.getElementById("matrixQuantity");
+const matrixAdjustedPrice = document.getElementById("matrixAdjustedPrice");
+const matrixPriceResult = document.getElementById("matrixPriceResult");
+const matrixFinalTotal = document.getElementById("matrixFinalTotal");
+
+function updateMatrixTotal() {
+  const unitPrice = Number(matrixAdjustedPrice.value);
+  const quantity = Number(matrixQuantity.value);
+
+  if (
+    matrixAdjustedPrice.value === "" ||
+    !Number.isFinite(unitPrice) ||
+    unitPrice < 0 ||
+    !Number.isInteger(quantity) ||
+    quantity < 1
+  ) {
+    matrixFinalTotal.textContent = "Final total: Enter a valid unit price and quantity.";
+    return;
+  }
+
+  const total = unitPrice * quantity;
+
+  matrixFinalTotal.textContent =
+    "Final total: $" + total.toFixed(2);
+}
+
+document.getElementById("calculateMatrixPrice").addEventListener("click", function () {
+  const product = matrixProduct.value;
+  const complexity = matrixComplexity.value;
+  const quantity = Number(matrixQuantity.value);
+
+  if (!matrixPrices[product]) {
+    matrixPriceResult.textContent = "This product is not available for automatic pricing yet.";
+    return;
+  }
+
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    matrixPriceResult.textContent = "Please enter a quantity of at least 1.";
+    return;
+  }
+
+  const suggestedPrice = matrixPrices[product][complexity];
+
+  matrixAdjustedPrice.value = suggestedPrice.toFixed(2);
+
+  matrixPriceResult.innerHTML =
+    "<strong>Suggested Unit Price: $" +
+    suggestedPrice.toFixed(2) +
+    "</strong><br>Complexity: " +
+    matrixComplexity.options[matrixComplexity.selectedIndex].text;
+
+  updateMatrixTotal();
+});
+
+matrixAdjustedPrice.addEventListener("input", updateMatrixTotal);
+matrixQuantity.addEventListener("input", updateMatrixTotal);
+
+// END MATRIX PRICING CALCULATOR
+</script>
 </body>
 </html>
