@@ -1420,5 +1420,76 @@ matrixQuantity.addEventListener("input", updateMatrixTotal);
 
 // END MATRIX PRICING CALCULATOR
 </script>
+  <!-- TEMPORARY MANUAL SHIPPING TEST -->
+<div style="margin:30px 0;padding:20px;border:1px solid #b89646;border-radius:10px;background:#222;color:white;">
+  <h3 style="color:#d4af37;">Manual Shipping Test</h3>
+  <p>Creates one test shipment for your unpaid test quote.</p>
+
+  <button
+    id="testShipmentButton"
+    type="button"
+    style="padding:12px 20px;background:#b89646;color:black;border:0;border-radius:6px;cursor:pointer;"
+  >
+    Create Test Shipment
+  </button>
+
+  <p id="shipmentTestResult" style="margin-top:15px;"></p>
+</div>
+
+<script>
+document.getElementById("testShipmentButton").addEventListener("click", async function () {
+  const button = this;
+  const result = document.getElementById("shipmentTestResult");
+
+  button.disabled = true;
+  result.textContent = "Creating test shipment...";
+
+  try {
+    const { data: sessionData, error: sessionError } =
+      await supabaseClient.auth.getSession();
+
+    if (sessionError || !sessionData.session) {
+      throw new Error("Admin session not found. Please log in again.");
+    }
+
+    const { data, error } = await supabaseClient.functions.invoke(
+      "admin-manage-shipment",
+      {
+        body: {
+          operation: "CREATE",
+          quote_id: "6f88c046-b13b-4d18-b9a3-bc5b1f466b38",
+          shipping_carrier: "USPS",
+          shipping_service: "Ground Advantage",
+          tracking_number: "TEST-PBS-0001",
+          tracking_url: null,
+          shipping_status: "LABEL_CREATED",
+          shipment_date: null,
+          internal_notes: "Temporary manual shipping test. No label purchased."
+        }
+      }
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data || !data.success) {
+      throw new Error(data?.error || "Shipment creation failed.");
+    }
+
+    result.textContent =
+      "SUCCESS! Test shipment created. Shipment ID: " + data.shipment.id;
+
+    result.style.color = "#7CFC98";
+
+  } catch (error) {
+    console.error("Shipment test:", error);
+    result.textContent = "ERROR: " + error.message;
+    result.style.color = "#ff7777";
+    button.disabled = false;
+  }
+});
+</script>
+<!-- END TEMPORARY MANUAL SHIPPING TEST -->
 </body>
 </html>
