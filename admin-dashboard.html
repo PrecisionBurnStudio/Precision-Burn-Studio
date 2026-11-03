@@ -1455,17 +1455,17 @@ document.getElementById("testShipmentButton").addEventListener("click", async fu
     const { data, error } = await supabaseClient.functions.invoke(
       "admin-manage-shipment",
       {
-        body: {
-          operation: "CREATE",
-          quote_id: "6f88c046-b13b-4d18-b9a3-bc5b1f466b38",
-          shipping_carrier: "USPS",
-          shipping_service: "Ground Advantage",
-          tracking_number: "TEST-PBS-0001",
-          tracking_url: null,
-          shipping_status: "LABEL_CREATED",
-          shipment_date: null,
-          internal_notes: "Temporary manual shipping test. No label purchased."
-        }
+       body: {
+  operation: "UPDATE",
+  shipment_id: "8ac3dc61-6c5c-4c51-92dc-09c8a70ae7a8",
+  shipping_carrier: "USPS",
+  shipping_service: "Ground Advantage",
+  tracking_number: "TEST-PBS-0001",
+  tracking_url: null,
+  shipping_status: "SHIPPED",
+  shipment_date: new Date().toISOString(),
+  internal_notes: "Manual shipping update test."
+}
       }
     );
 
