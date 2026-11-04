@@ -1437,59 +1437,6 @@ matrixQuantity.addEventListener("input", updateMatrixTotal);
 </div>
 
 <script>
-document.getElementById("testShipmentButton").addEventListener("click", async function () {
-  const button = this;
-  const result = document.getElementById("shipmentTestResult");
 
-  button.disabled = true;
-  result.textContent = "Creating test shipment...";
-
-  try {
-    const { data: sessionData, error: sessionError } =
-      await supabaseClient.auth.getSession();
-
-    if (sessionError || !sessionData.session) {
-      throw new Error("Admin session not found. Please log in again.");
-    }
-
-    const { data, error } = await supabaseClient.functions.invoke(
-      "admin-manage-shipment",
-      {
-       body: {
-  operation: "UPDATE",
-  shipment_id: "8ac3dc61-6c5c-4c51-92dc-09c8a70ae7a8",
-  shipping_carrier: "USPS",
-  shipping_service: "Ground Advantage",
-  tracking_number: "TEST-PBS-0001",
-  tracking_url: null,
-  shipping_status: "SHIPPED",
-  shipment_date: new Date().toISOString(),
-  internal_notes: "Manual shipping update test."
-}
-      }
-    );
-
-    if (error) {
-      throw error;
-    }
-
-    if (!data || !data.success) {
-      throw new Error(data?.error || "Shipment creation failed.");
-    }
-
-    result.textContent =
-      "SUCCESS! Test shipment created. Shipment ID: " + data.shipment.id;
-
-    result.style.color = "#7CFC98";
-
-  } catch (error) {
-    console.error("Shipment test:", error);
-    result.textContent = "ERROR: " + error.message;
-    result.style.color = "#ff7777";
-    button.disabled = false;
-  }
-});
-</script>
-<!-- END TEMPORARY MANUAL SHIPPING TEST -->
 </body>
 </html>
