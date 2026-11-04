@@ -1761,6 +1761,81 @@ document.getElementById("createShipmentButton")
       message.style.color = "#ff7777";
     }
   });
+  // LOAD SELECTED SHIPMENT DETAILS
+document.getElementById("existingShipmentSelect")
+  .addEventListener("change", async function () {
+
+    const shipmentId = this.value;
+
+    if (!shipmentId) return;
+
+    const message =
+      document.getElementById("shippingManagementMessage");
+
+    try {
+      const { data: sessionData, error: sessionError } =
+        await supabaseClient.auth.getSession();
+
+      if (sessionError || !sessionData.session) {
+        throw new Error("Admin session not found.");
+      }
+
+      const { data, error } =
+        await supabaseClient.functions.invoke(
+          "admin-manage-shipment",
+          {
+            body: {
+              operation: "READ",
+              quote_id:
+                document.getElementById("shippingQuoteSelect").value
+            }
+          }
+        );
+
+      if (error) throw error;
+
+      if (!data || !data.success) {
+        throw new Error("Could not load shipment details.");
+      }
+
+      const shipment = data.shipments.find(
+        item => item.id === shipmentId
+      );
+
+      if (!shipment) {
+        throw new Error("Selected shipment was not found.");
+      }
+
+      document.getElementById("shippingCarrier").value =
+        shipment.shipping_carrier || "";
+
+      document.getElementById("shippingService").value =
+        shipment.shipping_service || "";
+
+      document.getElementById("shippingTrackingNumber").value =
+        shipment.tracking_number || "";
+
+      document.getElementById("shippingTrackingUrl").value =
+        shipment.tracking_url || "";
+
+      document.getElementById("shippingStatus").value =
+        shipment.shipping_status || "";
+
+      document.getElementById("shippingNotes").value =
+        shipment.internal_notes || "";
+
+      message.textContent = "Shipment details loaded.";
+      message.style.color = "#8aff9a";
+
+    } catch (error) {
+      console.error("Load shipment details error:", error);
+
+      message.textContent =
+        error.message || "Could not load shipment details.";
+
+      message.style.color = "#ff7777";
+    }
+  });
 </script>
 
 </body>
