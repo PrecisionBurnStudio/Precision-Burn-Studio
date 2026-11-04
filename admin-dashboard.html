@@ -1533,6 +1533,66 @@ matrixQuantity.addEventListener("input", updateMatrixTotal);
 
 </section>
 <!-- END PERMANENT SHIPPING MANAGEMENT -->
+<script>
+// LOAD PAID ORDERS INTO SHIPPING SELECTOR
+
+async function loadShippingQuotes() {
+  const select = document.getElementById("shippingQuoteSelect");
+  const message = document.getElementById("shippingManagementMessage");
+
+  select.innerHTML = '<option value="">Loading orders...</option>';
+
+  const { data, error } = await supabaseClient
+    .from("Quotes")
+    .select(`
+      Idid,
+      Quote_number,
+      Customer_name,
+      Project_type,
+      Payment_status
+    `)
+    .eq("Payment_status", "PAID")
+    .order("Quote_number", { ascending: false });
+
+  if (error) {
+    console.error("Shipping quote loading error:", error);
+
+    select.innerHTML =
+      '<option value="">Unable to load orders</option>';
+
+    message.textContent = "Unable to load paid orders.";
+    message.style.color = "#ff7777";
+    return;
+  }
+
+  select.innerHTML =
+    '<option value="">Select a paid order...</option>';
+
+  data.forEach(function(quote) {
+    const option = document.createElement("option");
+
+    option.value = quote.Idid;
+
+    option.textContent =
+      quote.Quote_number +
+      " — " +
+      quote.Customer_name +
+      " — " +
+      quote.Project_type;
+
+    select.appendChild(option);
+  });
+
+  message.textContent =
+    data.length + " paid order(s) available for shipping.";
+
+  message.style.color = "#8aff9a";
+}
+
+loadShippingQuotes();
+
+// END LOAD PAID ORDERS
+</script>
 
 </body>
 </html>
