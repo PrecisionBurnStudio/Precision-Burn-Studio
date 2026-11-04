@@ -1420,6 +1420,119 @@ matrixQuantity.addEventListener("input", updateMatrixTotal);
 
 // END MATRIX PRICING CALCULATOR
 </script>
+<!-- PERMANENT SHIPPING MANAGEMENT -->
+<section id="shippingManagement" style="
+  margin: 30px 0;
+  padding: 25px;
+  background: #1c1c1c;
+  border: 1px solid #b89646;
+  border-radius: 10px;
+  color: white;
+">
+
+  <h2 style="color: #d4af37; margin-top: 0;">
+    Shipping Management
+  </h2>
+
+  <p style="color: #ccc;">
+    Create shipments and manage tracking information for customer orders.
+  </p>
+
+  <div style="margin-bottom: 18px;">
+    <label for="shippingQuoteSelect">Select Customer Order</label>
+    <select id="shippingQuoteSelect" class="edit-field">
+      <option value="">Select an order...</option>
+    </select>
+  </div>
+
+  <div style="margin-bottom: 18px;">
+    <label for="shippingCarrier">Shipping Carrier</label>
+    <select id="shippingCarrier" class="edit-field">
+      <option value="">Select carrier...</option>
+      <option value="USPS">USPS</option>
+      <option value="UPS">UPS</option>
+      <option value="FedEx">FedEx</option>
+      <option value="Other">Other</option>
+    </select>
+  </div>
+
+  <div style="margin-bottom: 18px;">
+    <label for="shippingService">Shipping Service</label>
+    <input
+      id="shippingService"
+      class="edit-field"
+      type="text"
+      placeholder="Example: Ground Advantage"
+    >
+  </div>
+
+  <div style="margin-bottom: 18px;">
+    <label for="shippingTrackingNumber">Tracking Number</label>
+    <input
+      id="shippingTrackingNumber"
+      class="edit-field"
+      type="text"
+      placeholder="Enter tracking number"
+    >
+  </div>
+
+  <div style="margin-bottom: 18px;">
+    <label for="shippingTrackingUrl">Tracking URL</label>
+    <input
+      id="shippingTrackingUrl"
+      class="edit-field"
+      type="url"
+      placeholder="Tracking link (optional)"
+    >
+  </div>
+
+  <div style="margin-bottom: 18px;">
+    <label for="shippingStatus">Shipment Status</label>
+    <select id="shippingStatus" class="edit-field">
+      <option value="PREPARING">Preparing</option>
+      <option value="SHIPPED">Shipped</option>
+      <option value="IN TRANSIT">In Transit</option>
+      <option value="OUT FOR DELIVERY">Out for Delivery</option>
+      <option value="DELIVERED">Delivered</option>
+      <option value="EXCEPTION">Delivery Exception</option>
+    </select>
+  </div>
+
+  <div style="margin-bottom: 18px;">
+    <label for="shippingNotes">Internal Shipping Notes</label>
+    <textarea
+      id="shippingNotes"
+      class="edit-field"
+      placeholder="Internal notes..."
+    ></textarea>
+  </div>
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <button
+      id="createShipmentButton"
+      type="button"
+      style="padding:12px 18px;background:#d4af37;color:#111;border:0;border-radius:6px;font-weight:bold;cursor:pointer;"
+    >
+      Create Shipment
+    </button>
+
+    <button
+      id="updateShipmentButton"
+      type="button"
+      style="padding:12px 18px;background:#555;color:white;border:0;border-radius:6px;font-weight:bold;cursor:pointer;"
+    >
+      Update Shipment
+    </button>
+  </div>
+
+  <div
+    id="shippingManagementMessage"
+    style="margin-top:18px;"
+    aria-live="polite"
+  ></div>
+
+</section>
+<!-- END PERMANENT SHIPPING MANAGEMENT -->
 
 </body>
 </html>
