@@ -1688,6 +1688,79 @@ document
 loadShippingQuotes();
 
 // END LOAD PAID ORDERS
+  // CREATE SHIPMENT BUTTON
+document.getElementById("createShipmentButton")
+  .addEventListener("click", async function () {
+
+    const quoteId =
+      document.getElementById("shippingQuoteSelect").value;
+
+    const carrier =
+      document.getElementById("shippingCarrier").value;
+
+    const service =
+      document.getElementById("shippingService").value.trim();
+
+    const trackingNumber =
+      document.getElementById("shippingTrackingNumber").value.trim();
+
+    const trackingUrl =
+      document.getElementById("shippingTrackingUrl").value.trim();
+
+    const status =
+      document.getElementById("shippingStatus").value;
+
+    const notes =
+      document.getElementById("shippingNotes").value.trim();
+
+    const message =
+      document.getElementById("shippingManagementMessage");
+
+    if (!quoteId || !carrier || !trackingNumber || !status) {
+      message.textContent = "Please complete all required shipping fields.";
+      message.style.color = "#ff7777";
+      return;
+    }
+
+    try {
+      const { data, error } =
+        await supabaseClient.functions.invoke(
+          "admin-manage-shipment",
+          {
+            body: {
+              operation: "CREATE",
+              quote_id: quoteId,
+              shipping_carrier: carrier,
+              shipping_service: service,
+              tracking_number: trackingNumber,
+              tracking_url: trackingUrl,
+              shipping_status: status,
+              shipment_date: new Date().toISOString(),
+              internal_notes: notes
+            }
+          }
+        );
+
+      if (error) throw error;
+
+      if (!data || !data.success) {
+        throw new Error(data?.error || "Shipment creation failed.");
+      }
+
+      message.textContent = "Shipment created successfully!";
+      message.style.color = "#8aff9a";
+
+      await loadExistingShipments();
+
+    } catch (error) {
+      console.error("Create shipment error:", error);
+
+      message.textContent =
+        error.message || "Unable to create shipment.";
+
+      message.style.color = "#ff7777";
+    }
+  });
 </script>
 
 </body>
