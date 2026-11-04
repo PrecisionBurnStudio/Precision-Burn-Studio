@@ -1591,6 +1591,83 @@ async function loadShippingQuotes() {
 
   message.style.color = "#8aff9a";
 }
+// LOAD EXISTING SHIPMENTS FOR SELECTED ORDER
+
+async function loadExistingShipments() {
+  const quoteSelect = document.getElementById("shippingQuoteSelect");
+  const shipmentSelect = document.getElementById("existingShipmentSelect");
+  const message = document.getElementById("shippingManagementMessage");
+
+  const quoteId = quoteSelect.value;
+
+  shipmentSelect.innerHTML =
+    '<option value="">Loading shipments...</option>';
+
+  if (!quoteId) {
+    shipmentSelect.innerHTML =
+      '<option value="">Select an order first</option>';
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("Shipments")
+    .select(`
+      id,
+      quote_id,
+      shipping_carrier,
+      shipping_service,
+      tracking_number,
+      tracking_url,
+      shipping_status,
+      shipment_date,
+      internal_notes
+    `)
+    .eq("quote_id", quoteId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Existing shipment loading error:", error);
+
+    shipmentSelect.innerHTML =
+      '<option value="">Unable to load shipments</option>';
+
+    message.textContent = "Unable to load existing shipments.";
+    message.style.color = "#ff7777";
+    return;
+  }
+
+  shipmentSelect.innerHTML =
+    '<option value="">Select an existing shipment...</option>';
+
+  if (!data || data.length === 0) {
+    shipmentSelect.innerHTML =
+      '<option value="">No existing shipments</option>';
+    return;
+  }
+
+  data.forEach(function(shipment) {
+    const option = document.createElement("option");
+
+    option.value = shipment.id;
+
+    option.textContent =
+      shipment.shipping_carrier +
+      " — " +
+      (shipment.tracking_number || "No tracking number") +
+      " — " +
+      shipment.shipping_status;
+
+    shipmentSelect.appendChild(option);
+  });
+}
+
+// LOAD SHIPMENTS WHEN ORDER CHANGES
+
+document
+  .getElementById("shippingQuoteSelect")
+  .addEventListener("change", loadExistingShipments);
+
+// END EXISTING SHIPMENT LOADER
 
 loadShippingQuotes();
 
