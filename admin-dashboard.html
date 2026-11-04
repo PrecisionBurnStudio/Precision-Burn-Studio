@@ -1631,8 +1631,10 @@ async function loadExistingShipments() {
     shipmentSelect.innerHTML =
       '<option value="">Unable to load shipments</option>';
 
-    message.textContent = "Unable to load existing shipments.";
-    message.style.color = "#ff7777";
+   message.textContent =
+  "Unable to load existing shipments: " + error.message;
+
+message.style.color = "#ff7777";
     return;
   }
 
