@@ -1609,58 +1609,72 @@ async function loadExistingShipments() {
     return;
   }
 
-  const { data, error } = await supabaseClient
-    .from("Shipments")
-    .select(`
-      id,
-      quote_id,
-      shipping_carrier,
-      shipping_service,
-      tracking_number,
-      tracking_url,
-      shipping_status,
-      shipment_date,
-      internal_notes
-    `)
-    .eq("quote_id", quoteId)
-    .order("created_at", { ascending: false });
+  try {
+    const { data: sessionData, error: sessionError } =
+      await supabaseClient.auth.getSession();
 
-  if (error) {
+    if (sessionError || !sessionData.session) {
+      throw new Error("Admin session unavailable. Please log in again.");
+    }
+
+    const { data, error } = await supabaseClient.functions.invoke(
+      "admin-manage-shipment",
+      {
+        body: {
+          operation: "READ",
+          quote_id: quoteId
+        }
+      }
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data || !data.success) {
+      throw new Error(data?.error || "Shipment lookup failed.");
+    }
+
+    shipmentSelect.innerHTML =
+      '<option value="">Select an existing shipment...</option>';
+
+    if (!data.shipments || data.shipments.length === 0) {
+      shipmentSelect.innerHTML =
+        '<option value="">No existing shipments</option>';
+      return;
+    }
+
+    data.shipments.forEach(function(shipment) {
+      const option = document.createElement("option");
+
+      option.value = shipment.id;
+
+      option.textContent =
+        shipment.shipping_carrier +
+        " — " +
+        (shipment.tracking_number || "No tracking number") +
+        " — " +
+        shipment.shipping_status;
+
+      shipmentSelect.appendChild(option);
+    });
+
+    message.textContent =
+      data.shipments.length + " existing shipment(s) found.";
+
+    message.style.color = "#8aff9a";
+
+  } catch (error) {
     console.error("Existing shipment loading error:", error);
 
     shipmentSelect.innerHTML =
       '<option value="">Unable to load shipments</option>';
 
-   message.textContent =
-  "Unable to load existing shipments: " + error.message;
+    message.textContent =
+      "Unable to load existing shipments: " + error.message;
 
-message.style.color = "#ff7777";
-    return;
+    message.style.color = "#ff7777";
   }
-
-  shipmentSelect.innerHTML =
-    '<option value="">Select an existing shipment...</option>';
-
-  if (!data || data.length === 0) {
-    shipmentSelect.innerHTML =
-      '<option value="">No existing shipments</option>';
-    return;
-  }
-
-  data.forEach(function(shipment) {
-    const option = document.createElement("option");
-
-    option.value = shipment.id;
-
-    option.textContent =
-      shipment.shipping_carrier +
-      " — " +
-      (shipment.tracking_number || "No tracking number") +
-      " — " +
-      shipment.shipping_status;
-
-    shipmentSelect.appendChild(option);
-  });
 }
 
 // LOAD SHIPMENTS WHEN ORDER CHANGES
