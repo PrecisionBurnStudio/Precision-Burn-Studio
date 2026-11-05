@@ -713,6 +713,7 @@ async function loadCustomerShipping(token) {
 
         const quote = data[0];
 updateOrderTracking(quote);
+        loadCustomerShipping(token);
         document.getElementById("quoteNumber").textContent =
           text(quote.quote_number);
 
