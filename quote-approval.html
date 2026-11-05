@@ -543,6 +543,132 @@ function updateOrderTracking(quote) {
     completionRow.style.display = "none";
   }
 }
+async function loadCustomerShipping(token) {
+
+  const carrierElement =
+    document.getElementById("trackingCarrier");
+
+  const numberElement =
+    document.getElementById("trackingNumber");
+
+  const statusElement =
+    document.getElementById("trackingShippingStatus");
+
+  const dateElement =
+    document.getElementById("trackingShipmentDate");
+
+  const messageElement =
+    document.getElementById("trackingShippingMessage");
+
+  const linkRow =
+    document.getElementById("trackingLinkRow");
+
+  const trackingLink =
+    document.getElementById("trackingLink");
+
+  try {
+
+    const response = await fetch(
+      SUPABASE_URL + "/rest/v1/rpc/get_customer_shipment",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY
+        },
+
+        body: JSON.stringify({
+          p_token: token
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Unable to retrieve shipping information.");
+    }
+
+    const data = await response.json();
+
+    if (!data || data.length === 0) {
+
+      carrierElement.textContent = "Not shipped yet";
+      numberElement.textContent = "—";
+      statusElement.textContent = "Awaiting shipment";
+      dateElement.textContent = "—";
+
+      messageElement.textContent =
+        "Shipping information will appear here once your order ships.";
+
+      return;
+    }
+
+    const shipment = data[0];
+
+    carrierElement.textContent =
+      text(shipment.shipping_carrier);
+
+    numberElement.textContent =
+      text(shipment.tracking_number);
+
+    statusElement.textContent =
+      text(shipment.shipping_status)
+        .replace(/_/g, " ");
+
+    if (shipment.shipment_date) {
+      dateElement.textContent =
+        new Date(shipment.shipment_date).toLocaleDateString();
+    } else {
+      dateElement.textContent = "—";
+    }
+
+    if (shipment.tracking_url) {
+
+      try {
+
+        const url = new URL(shipment.tracking_url);
+
+        if (url.protocol === "https:" || url.protocol === "http:") {
+
+          trackingLink.href = url.href;
+          linkRow.style.display = "block";
+
+        } else {
+
+          linkRow.style.display = "none";
+
+        }
+
+      } catch {
+
+        linkRow.style.display = "none";
+
+      }
+
+    } else {
+
+      linkRow.style.display = "none";
+
+    }
+
+    messageElement.textContent =
+      "Your shipping information has been updated.";
+
+  } catch (error) {
+
+    console.error("Customer shipping lookup error:", error);
+
+    carrierElement.textContent = "Unavailable";
+    numberElement.textContent = "—";
+    statusElement.textContent = "Unavailable";
+    dateElement.textContent = "—";
+
+    messageElement.textContent =
+      "We couldn't load your shipping information. Please refresh the page.";
+
+  }
+}
 
     async function loadQuote() {
 
