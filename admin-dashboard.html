@@ -1486,17 +1486,18 @@ matrixQuantity.addEventListener("input", updateMatrixTotal);
     >
   </div>
 
-  <div style="margin-bottom: 18px;">
-    <label for="shippingStatus">Shipment Status</label>
-    <select id="shippingStatus" class="edit-field">
-      <option value="PREPARING">Preparing</option>
-      <option value="SHIPPED">Shipped</option>
-      <option value="IN TRANSIT">In Transit</option>
-      <option value="OUT FOR DELIVERY">Out for Delivery</option>
-      <option value="DELIVERED">Delivered</option>
-      <option value="EXCEPTION">Delivery Exception</option>
-    </select>
-  </div>
+ <div style="margin-bottom: 18px;">
+  <label for="shippingStatus">Shipment Status</label>
+  <select id="shippingStatus" class="edit-field">
+    <option value="LABEL_CREATED">Label Created</option>
+    <option value="SHIPPED">Shipped</option>
+    <option value="IN_TRANSIT">In Transit</option>
+    <option value="OUT_FOR_DELIVERY">Out for Delivery</option>
+    <option value="DELIVERED">Delivered</option>
+    <option value="EXCEPTION">Delivery Exception</option>
+    <option value="RETURNED">Returned</option>
+  </select>
+</div>
 <label for="existingShipmentSelect">Existing Shipment</label>
 <select id="existingShipmentSelect">
   <option value="">No shipment selected</option>
