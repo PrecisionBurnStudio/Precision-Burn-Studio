@@ -204,7 +204,25 @@ document.getElementById("customerCalculatePrice")
       customerMatrixPrices[product][complexity];
 
     const total = unitPrice * quantity;
+const productToOrderCategory = {
+  keychain: "Keychain",
+  ornament: "Home Décor",
+  cake: "Event / Convention Order",
+  photo: "Other",
+  plaque: "Home Décor",
+  sign: "Custom Sign",
+  gift: "Gift",
+  memorial: "Memorial Piece",
+  bridal: "Event / Convention Order",
+  favor: "Event / Convention Order",
+  sticker: "Other",
+  tattoo: "Other"
+};
 
+document.getElementById("orderProduct").value =
+  productToOrderCategory[product] || "Other";
+
+document.getElementById("orderQuantity").value = quantity;
     document.getElementById("estimateProduct").value = product;
     document.getElementById("estimateComplexity").value = complexity;
 
