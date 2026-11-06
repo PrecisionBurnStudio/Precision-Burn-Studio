@@ -641,7 +641,9 @@ linkRow.style.display = "none";
 const trackingNumber = text(shipment.tracking_number).trim();
 const carrier = text(shipment.shipping_carrier).trim().toUpperCase();
 
-let trackingUrl = text(shipment.tracking_url).trim();
+let trackingUrl = shipment.tracking_url
+  ? String(shipment.tracking_url).trim()
+  : "";
 
 if (!trackingUrl && trackingNumber) {
 
