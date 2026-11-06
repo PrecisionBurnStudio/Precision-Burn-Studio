@@ -612,9 +612,21 @@ async function loadCustomerShipping(token) {
     numberElement.textContent =
       text(shipment.tracking_number);
 
-    statusElement.textContent =
-      text(shipment.shipping_status)
-        .replace(/_/g, " ");
+    const shippingStatusLabels = {
+  LABEL_CREATED: "Shipping Label Created",
+  SHIPPED: "Shipped",
+  IN_TRANSIT: "In Transit",
+  OUT_FOR_DELIVERY: "Out for Delivery",
+  DELIVERED: "Delivered",
+  EXCEPTION: "Delivery Exception",
+  RETURNED: "Returned to Sender"
+};
+
+const rawShippingStatus = text(shipment.shipping_status);
+
+statusElement.textContent =
+  shippingStatusLabels[rawShippingStatus] ||
+  rawShippingStatus.replace(/_/g, " ");
 
     if (shipment.shipment_date) {
       dateElement.textContent =
