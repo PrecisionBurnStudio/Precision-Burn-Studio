@@ -635,12 +635,38 @@ statusElement.textContent =
       dateElement.textContent = "—";
     }
 
-   trackingLink.removeAttribute("href");
+  trackingLink.removeAttribute("href");
 linkRow.style.display = "none";
 
-if (shipment.tracking_url) {
+const trackingNumber = text(shipment.tracking_number).trim();
+const carrier = text(shipment.shipping_carrier).trim().toUpperCase();
+
+let trackingUrl = text(shipment.tracking_url).trim();
+
+if (!trackingUrl && trackingNumber) {
+
+  if (carrier === "USPS") {
+    trackingUrl =
+      "https://tools.usps.com/go/TrackConfirmAction?tLabels=" +
+      encodeURIComponent(trackingNumber);
+
+  } else if (carrier === "UPS") {
+    trackingUrl =
+      "https://www.ups.com/track?tracknum=" +
+      encodeURIComponent(trackingNumber);
+
+  } else if (carrier === "FEDEX") {
+    trackingUrl =
+      "https://www.fedex.com/fedextrack/?trknbr=" +
+      encodeURIComponent(trackingNumber);
+  }
+
+}
+
+if (trackingUrl) {
+
   try {
-    const url = new URL(shipment.tracking_url);
+    const url = new URL(trackingUrl);
 
     if (
       url.protocol === "https:" ||
@@ -653,6 +679,7 @@ if (shipment.tracking_url) {
   } catch {
     linkRow.style.display = "none";
   }
+
 }
 
     messageElement.textContent =
