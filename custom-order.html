@@ -15,7 +15,22 @@
 <form class="order-form" action="https://formspree.io/f/mwlpokea" method="POST" enctype="multipart/form-data">
 <label>Name *<input name="name" autocomplete="name" required></label>
 <div class="two-fields"><label>Email *<input type="email" name="email" autocomplete="email" required></label><label>Phone<input type="tel" name="phone" autocomplete="tel"></label></div>
-<label>What are you looking for? *<select name="product" required><option value="">Choose one</option><option>Custom Sign</option><option>Keychain</option><option>Cutting Board</option><option>Tumbler / Drinkware</option><option>Memorial Piece</option><option>Home Décor</option><option>Business / Corporate Item</option><option>Event / Convention Order</option><option>Gift</option><option>Award / Recognition</option><option>Other</option></select></label>
+<label>What are you looking for? *
+  <select name="product" id="orderProduct" required>
+    <option value="">Choose one</option>
+    <option>Custom Sign</option>
+    <option>Keychain</option>
+    <option>Cutting Board</option>
+    <option>Tumbler / Drinkware</option>
+    <option>Memorial Piece</option>
+    <option>Home Décor</option>
+    <option>Business / Corporate Item</option>
+    <option>Event / Convention Order</option>
+    <option>Gift</option>
+    <option>Award / Recognition</option>
+    <option>Other</option>
+  </select>
+</label>
   <!-- CUSTOMER PRICE ESTIMATOR -->
 <section id="customerPriceCalculator" class="customer-calculator">
 
