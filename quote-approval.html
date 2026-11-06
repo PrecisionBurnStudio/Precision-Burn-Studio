@@ -635,34 +635,25 @@ statusElement.textContent =
       dateElement.textContent = "—";
     }
 
-    if (shipment.tracking_url) {
+   trackingLink.removeAttribute("href");
+linkRow.style.display = "none";
 
-      try {
+if (shipment.tracking_url) {
+  try {
+    const url = new URL(shipment.tracking_url);
 
-        const url = new URL(shipment.tracking_url);
-
-        if (url.protocol === "https:" || url.protocol === "http:") {
-
-          trackingLink.href = url.href;
-          linkRow.style.display = "block";
-
-        } else {
-
-          linkRow.style.display = "none";
-
-        }
-
-      } catch {
-
-        linkRow.style.display = "none";
-
-      }
-
-    } else {
-
-      linkRow.style.display = "none";
-
+    if (
+      url.protocol === "https:" ||
+      url.protocol === "http:"
+    ) {
+      trackingLink.href = url.href;
+      linkRow.style.display = "block";
     }
+
+  } catch {
+    linkRow.style.display = "none";
+  }
+}
 
     messageElement.textContent =
       "Your shipping information has been updated.";
