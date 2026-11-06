@@ -120,5 +120,69 @@
 </form></div></section>
 </main>
 <footer class="footer"><div class="wrap footer-grid"><div><a class="brand footer-brand" href="index.html"><img src="assets/precision-burn-studio-logo.png" alt="Precision Burn Studio logo"></a><p>You bring the idea. I bring it to life.</p></div><div><h4>Email</h4><a href="mailto:precisionburnstudio@yahoo.com">precisionburnstudio@yahoo.com</a></div><div><h4>Back to Site</h4><a href="index.html#products">Products</a><a href="index.html#about">About Gregory</a><a href="index.html#faq">FAQ</a></div></div><div class="wrap copyright">© 2026 Precision Burn Studio • Custom laser engraving</div></footer>
+  <!-- CUSTOMER PRICE CALCULATOR -->
+<script>
+const customerMatrixPrices = {
+  keychain: { simple: 7, moderate: 11, detailed: 15 },
+  ornament: { simple: 10, moderate: 18, detailed: 25 },
+  cake: { simple: 20, moderate: 33, detailed: 45 },
+  photo: { simple: 15, moderate: 37.50, detailed: 60 },
+  plaque: { simple: 20, moderate: 35, detailed: 50 },
+  sign: { simple: 15, moderate: 27.50, detailed: 40 },
+  gift: { simple: 15, moderate: 32.50, detailed: 50 },
+  memorial: { simple: 25, moderate: 50, detailed: 75 },
+  bridal: { simple: 10, moderate: 20, detailed: 30 },
+  favor: { simple: 5, moderate: 8.50, detailed: 12 },
+  sticker: { simple: 8, moderate: 10, detailed: 12 },
+  tattoo: { simple: 15, moderate: 20, detailed: 25 }
+};
+
+const customerMatrixProduct =
+  document.getElementById("customerMatrixProduct");
+
+const customerMatrixComplexity =
+  document.getElementById("customerMatrixComplexity");
+
+const customerMatrixQuantity =
+  document.getElementById("customerMatrixQuantity");
+
+const customerMatrixResult =
+  document.getElementById("customerMatrixResult");
+
+document.getElementById("customerCalculatePrice")
+  .addEventListener("click", function () {
+
+    const product = customerMatrixProduct.value;
+    const complexity = customerMatrixComplexity.value;
+    const quantity = Number(customerMatrixQuantity.value);
+
+    if (!customerMatrixPrices[product]) {
+      customerMatrixResult.textContent =
+        "This product is not available for automatic pricing yet.";
+      return;
+    }
+
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      customerMatrixResult.textContent =
+        "Please enter a quantity of at least 1.";
+      return;
+    }
+
+    const unitPrice =
+      customerMatrixPrices[product][complexity];
+
+    const total = unitPrice * quantity;
+
+    customerMatrixResult.innerHTML =
+      "<strong>Estimated Unit Price: $" +
+      unitPrice.toFixed(2) +
+      "</strong><br>" +
+      "Quantity: " + quantity +
+      "<br><strong>Estimated Project Total: $" +
+      total.toFixed(2) +
+      "</strong>";
+  });
+</script>
+<!-- END CUSTOMER PRICE CALCULATOR -->
 <script src="script.js"></script>
 </body></html>
