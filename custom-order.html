@@ -221,6 +221,19 @@ document.getElementById("orderProduct").value =
   productToOrderCategory[product] || "Other";
 
 document.getElementById("orderQuantity").value = quantity;
+    const length = document.getElementById("customerMatrixLength").value;
+const width = document.getElementById("customerMatrixWidth").value;
+
+if (length && width) {
+  document.getElementById("orderSize").value =
+    length + " x " + width + " in.";
+} else if (length) {
+  document.getElementById("orderSize").value = length + " in. long";
+} else if (width) {
+  document.getElementById("orderSize").value = width + " in. wide";
+} else {
+  document.getElementById("orderSize").value = "";
+}
     document.getElementById("estimateProduct").value = product;
     document.getElementById("estimateComplexity").value = complexity;
 
