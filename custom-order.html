@@ -173,6 +173,26 @@ document.getElementById("customerCalculatePrice")
 
     const total = unitPrice * quantity;
 
+    document.getElementById("estimateProduct").value = product;
+    document.getElementById("estimateComplexity").value = complexity;
+
+    document.getElementById("estimateLength").value =
+      document.getElementById("customerMatrixLength").value;
+
+    document.getElementById("estimateWidth").value =
+      document.getElementById("customerMatrixWidth").value;
+
+    document.getElementById("estimateQuantity").value = quantity;
+
+    document.getElementById("estimatePersonalization").value =
+      document.getElementById("customerMatrixPersonalization").value;
+
+    document.getElementById("estimateUnitPrice").value =
+      unitPrice.toFixed(2);
+
+    document.getElementById("estimateTotal").value =
+      total.toFixed(2);
+
     customerMatrixResult.innerHTML =
       "<strong>Estimated Unit Price: $" +
       unitPrice.toFixed(2) +
