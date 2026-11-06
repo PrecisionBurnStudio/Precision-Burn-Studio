@@ -664,7 +664,19 @@ if (!trackingUrl && trackingNumber) {
   }
 
 }
+if (trackingUrl) {
+  try {
+    const url = new URL(trackingUrl);
 
+    if (url.protocol === "https:" || url.protocol === "http:") {
+      trackingLink.href = url.href;
+      linkRow.style.display = "block";
+    }
+  } catch (error) {
+    trackingLink.removeAttribute("href");
+    linkRow.style.display = "none";
+  }
+}
 if (trackingUrl) {
 
   try {
