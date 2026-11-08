@@ -479,7 +479,7 @@ async function loadQuotes() {
   quoteMessage.style.display = "block";
   quotesTableBody.innerHTML = "";
 
-  const { data, error } = await supabaseClient
+ const { data, error } = await supabaseClient
     .from("Quotes")
     .select(`
       Quote_number,
@@ -491,8 +491,10 @@ async function loadQuotes() {
       Status,
       Payment_status,
       Production_status,
-      Expires_at
+      Expires_at,
+      Issued_at
     `)
+    .order("Issued_at", { ascending: false });
     .order("Quote_number", { ascending: false });
 
   if (error) {
