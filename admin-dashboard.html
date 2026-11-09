@@ -528,7 +528,11 @@ async function loadQuotes() {
 
   data.forEach(function(quote) {
     const row = document.createElement("tr");
-
+ if (
+      String(quote.Payment_status || "").toUpperCase() === "PAID"
+    ) {
+      row.style.opacity = "0.45";
+    }
     const expires = quote.Expires_at
       ? new Date(quote.Expires_at).toLocaleDateString()
       : "—";
