@@ -654,11 +654,25 @@ async function showQuoteDetails(quoteNumber) {
 
   } else {
 
-    actionArea = `
+    actionArea = \`
       <div class="edit-mode-notice">
         This quote has not been paid and is currently editable.
       </div>
-    `;
+
+      <button
+        id="sendQuoteApprovalButton"
+        type="button"
+        style="padding:12px 18px;background:#d4af37;color:#111;border:0;border-radius:6px;font-weight:bold;cursor:pointer;margin-bottom:20px;"
+      >
+        SEND QUOTE APPROVAL
+      </button>
+
+      <div
+        id="quoteApprovalMessage"
+        style="margin-bottom:20px;"
+        aria-live="polite"
+      ></div>
+    \`;
 
     editButton.style.display = "inline-block";
   }
@@ -1107,7 +1121,83 @@ document
   });
 
 document.addEventListener("click", async function(event) {
+if (event.target.id === "sendQuoteApprovalButton") {
 
+    const button = event.target;
+    const message =
+      document.getElementById("quoteApprovalMessage");
+
+    const quoteNumber = currentQuoteData?.Quote_number;
+
+    if (!quoteNumber) {
+      message.textContent = "Unable to identify this quote.";
+      message.style.color = "#ff7777";
+      return;
+    }
+
+    if (currentQuoteData.Payment_status === "PAID") {
+      message.textContent = "This quote has already been paid.";
+      message.style.color = "#ff7777";
+      return;
+    }
+
+    if (!confirm(
+      "Send the quote approval email for " +
+      quoteNumber +
+      " using the saved Total of $" +
+      Number(currentQuoteData.Total).toFixed(2) +
+      "?"
+    )) {
+      return;
+    }
+
+    try {
+      button.disabled = true;
+      button.textContent = "SENDING EMAIL...";
+
+      message.textContent = "Sending quote approval email...";
+      message.style.color = "#d4af37";
+
+      const { data, error } =
+        await supabaseClient.functions.invoke(
+          "send-quote-approval-email",
+          {
+            body: {
+              quote_number: quoteNumber
+            }
+          }
+        );
+
+      if (error) throw error;
+
+      if (!data || !data.success) {
+        throw new Error(
+          data?.error || "Unable to send quote approval email."
+        );
+      }
+
+      message.textContent =
+        "SUCCESS! Quote approval email sent to " +
+        currentQuoteData.Customer_email;
+
+      message.style.color = "#8aff9a";
+
+      button.textContent = "EMAIL SENT";
+
+    } catch (error) {
+      console.error("Quote approval email error:", error);
+
+      message.textContent =
+        error.message || "Unable to send quote approval email.";
+
+      message.style.color = "#ff7777";
+
+      button.disabled = false;
+      button.textContent = "SEND QUOTE APPROVAL";
+    }
+
+    return;
+  }
   if (event.target.id === "cancelEditButton") {
 
     if (currentQuoteData) {
