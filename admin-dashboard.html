@@ -2487,5 +2487,319 @@ document.getElementById("updateShipmentButton")
   loadProducts();
 })();
 </script>
+  <script>
+(function () {
+  const form = {
+    id: document.getElementById("customCatalogId"),
+    name: document.getElementById("customCatalogName"),
+    description: document.getElementById("customCatalogDescription"),
+    category: document.getElementById("customCatalogCategory"),
+    price: document.getElementById("customCatalogPrice"),
+    image: document.getElementById("customCatalogImage"),
+    published: document.getElementById("customCatalogPublished"),
+    currentImage: document.getElementById("customCatalogCurrentImage"),
+    message: document.getElementById("customCatalogMessage"),
+    list: document.getElementById("customCatalogList")
+  };
+
+  function showMessage(message, error = false) {
+    form.message.textContent = message;
+    form.message.style.color = error ? "#ff7777" : "#d4af37";
+  }
+
+  function publicImageUrl(path) {
+    if (!path) return "";
+    return supabaseClient.storage
+      .from("custom-catalog")
+      .getPublicUrl(path).data.publicUrl;
+  }
+
+  function clearForm() {
+    form.id.value = "";
+    form.name.value = "";
+    form.description.value = "";
+    form.category.value = "";
+    form.price.value = "";
+    form.image.value = "";
+    form.published.checked = false;
+    form.currentImage.innerHTML = "";
+    showMessage("");
+  }
+
+  function makeButton(label, action) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    button.style.margin = "5px";
+    button.style.padding = "8px 12px";
+    button.style.cursor = "pointer";
+    button.addEventListener("click", action);
+    return button;
+  }
+
+  async function loadCatalogItems() {
+    form.list.textContent = "Loading catalog items...";
+
+    const { data, error } = await supabaseClient
+      .from("custom_catalog_items")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      form.list.textContent =
+        "Unable to load catalog items: " + error.message;
+      return;
+    }
+
+    form.list.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      form.list.textContent = "No catalog items have been added yet.";
+      return;
+    }
+
+    data.forEach(item => {
+      const card = document.createElement("div");
+      card.style.cssText =
+        "padding:15px;margin:12px 0;background:#292929;" +
+        "border:1px solid #555;border-radius:8px;";
+
+      const title = document.createElement("h4");
+      title.textContent = item.item_name;
+      title.style.color = "#d4af37";
+
+      const details = document.createElement("p");
+      details.textContent =
+        (item.estimated_price || "Price determined by quote") +
+        " | " + (item.category || "Uncategorized");
+
+      const status = document.createElement("p");
+      status.textContent = item.archived
+        ? "ARCHIVED"
+        : item.published ? "PUBLISHED" : "HIDDEN";
+
+      const actions = document.createElement("div");
+
+      if (item.image_path) {
+        const image = document.createElement("img");
+        image.src = publicImageUrl(item.image_path);
+        image.alt = item.item_name;
+        image.style.cssText =
+          "display:block;max-width:150px;max-height:120px;" +
+          "object-fit:contain;margin:10px 0;";
+        card.appendChild(image);
+      }
+
+      actions.appendChild(makeButton("Edit", () => {
+        form.id.value = item.id;
+        form.name.value = item.item_name || "";
+        form.description.value = item.description || "";
+        form.category.value = item.category || "";
+        form.price.value = item.estimated_price || "";
+        form.published.checked = item.published;
+        form.image.value = "";
+
+        form.currentImage.innerHTML = "";
+
+        if (item.image_path) {
+          const preview = document.createElement("img");
+          preview.src = publicImageUrl(item.image_path);
+          preview.alt = "Current catalog photo";
+          preview.style.cssText =
+            "max-width:150px;max-height:120px;object-fit:contain;";
+          form.currentImage.appendChild(preview);
+        }
+
+        showMessage("Editing: " + item.item_name);
+        document.getElementById("customCatalogManagement")
+          .scrollIntoView({ behavior: "smooth" });
+      }));
+
+      if (item.archived) {
+        actions.appendChild(makeButton("Unarchive", async () => {
+          const { error } = await supabaseClient
+            .from("custom_catalog_items")
+            .update({ archived: false, published: false })
+            .eq("id", item.id);
+
+          if (error) {
+            showMessage(error.message, true);
+            return;
+          }
+
+          await loadCatalogItems();
+          showMessage("Catalog item restored. It is currently hidden.");
+        }));
+      } else {
+        actions.appendChild(makeButton(
+          item.published ? "Hide" : "Publish",
+          async () => {
+            if (!item.image_path && !item.published) {
+              showMessage(
+                "Add a design photo before publishing this item.",
+                true
+              );
+              return;
+            }
+
+            const { error } = await supabaseClient
+              .from("custom_catalog_items")
+              .update({ published: !item.published })
+              .eq("id", item.id);
+
+            if (error) {
+              showMessage(error.message, true);
+              return;
+            }
+
+            await loadCatalogItems();
+            showMessage("Catalog visibility updated.");
+          }
+        ));
+
+        actions.appendChild(makeButton("Archive", async () => {
+          if (!confirm(
+            "Archive this catalog item? It will be hidden from customers."
+          )) {
+            return;
+          }
+
+          const { error } = await supabaseClient
+            .from("custom_catalog_items")
+            .update({ archived: true, published: false })
+            .eq("id", item.id);
+
+          if (error) {
+            showMessage(error.message, true);
+            return;
+          }
+
+          await loadCatalogItems();
+          showMessage("Catalog item archived.");
+        }));
+      }
+
+      card.appendChild(title);
+      card.appendChild(details);
+      card.appendChild(status);
+      card.appendChild(actions);
+      form.list.appendChild(card);
+    });
+  }
+
+  async function saveCatalogItem() {
+    const name = form.name.value.trim();
+    const file = form.image.files[0];
+    const itemId = form.id.value;
+
+    if (!name) {
+      showMessage("Please enter an item name.", true);
+      return;
+    }
+
+    if (file) {
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        showMessage("Please use a JPG, PNG, or WebP image.", true);
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        showMessage("Please choose an image smaller than 5 MB.", true);
+        return;
+      }
+    }
+
+    if (form.published.checked && !file && !itemId) {
+      showMessage("Please add a design photo before publishing.", true);
+      return;
+    }
+
+    const saveButton =
+      document.getElementById("saveCustomCatalogButton");
+
+    saveButton.disabled = true;
+    showMessage("Saving catalog item...");
+
+    try {
+      let imagePath = null;
+
+      if (itemId) {
+        const { data: existing, error } = await supabaseClient
+          .from("custom_catalog_items")
+          .select("image_path")
+          .eq("id", itemId)
+          .single();
+
+        if (error) throw error;
+        imagePath = existing.image_path;
+      }
+
+      if (file) {
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+        const newPath = crypto.randomUUID() + "-" + safeName;
+
+        const { error: uploadError } = await supabaseClient.storage
+          .from("custom-catalog")
+          .upload(newPath, file, {
+            cacheControl: "3600",
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+        imagePath = newPath;
+      }
+
+      if (form.published.checked && !imagePath) {
+        throw new Error(
+          "A design photo is required before publishing."
+        );
+      }
+
+      const itemData = {
+        item_name: name,
+        description: form.description.value.trim(),
+        category: form.category.value.trim(),
+        estimated_price: form.price.value.trim(),
+        image_path: imagePath,
+        published: form.published.checked,
+        updated_at: new Date().toISOString()
+      };
+
+      let result;
+
+      if (itemId) {
+        result = await supabaseClient
+          .from("custom_catalog_items")
+          .update(itemData)
+          .eq("id", itemId);
+      } else {
+        result = await supabaseClient
+          .from("custom_catalog_items")
+          .insert(itemData);
+      }
+
+      if (result.error) throw result.error;
+
+      clearForm();
+      await loadCatalogItems();
+      showMessage("Catalog item saved successfully.");
+
+    } catch (error) {
+      showMessage("Save failed: " + error.message, true);
+    } finally {
+      saveButton.disabled = false;
+    }
+  }
+
+  document.getElementById("saveCustomCatalogButton")
+    .addEventListener("click", saveCatalogItem);
+
+  document.getElementById("clearCustomCatalogButton")
+    .addEventListener("click", clearForm);
+
+  loadCatalogItems();
+})();
+</script>
 </body>
 </html>
