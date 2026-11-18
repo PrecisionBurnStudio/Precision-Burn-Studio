@@ -349,6 +349,82 @@ textarea.edit-field {
       </div>
 
     </div>
+<!-- STORE PRODUCTS MANAGEMENT -->
+<section id="storeProductsManagement" style="
+  margin: 30px 0;
+  padding: 25px;
+  background: #1c1c1c;
+  border: 1px solid #b89646;
+  border-radius: 10px;
+  color: white;
+">
+
+  <h2 style="color:#d4af37;margin-top:0;">Store Products</h2>
+  <p style="color:#ccc;">
+    Add and manage ready-to-buy products displayed in your online store.
+  </p>
+
+  <input type="hidden" id="storeProductId">
+
+  <div style="margin-bottom:15px;">
+    <label for="storeProductName">Product Name</label>
+    <input id="storeProductName" type="text" class="edit-field"
+      placeholder="Enter product name">
+  </div>
+
+  <div style="margin-bottom:15px;">
+    <label for="storeProductDescription">Description</label>
+    <textarea id="storeProductDescription" class="edit-field"
+      rows="4" placeholder="Describe the product"></textarea>
+  </div>
+
+  <div style="margin-bottom:15px;">
+    <label for="storeProductCategory">Category</label>
+    <input id="storeProductCategory" type="text" class="edit-field"
+      placeholder="Example: Ornaments, Signs, Keychains">
+  </div>
+
+  <div style="margin-bottom:15px;">
+    <label for="storeProductPrice">Price ($)</label>
+    <input id="storeProductPrice" type="number" class="edit-field"
+      min="0.01" step="0.01" placeholder="0.00">
+  </div>
+
+  <div style="margin-bottom:15px;">
+    <label for="storeProductImage">Product Photo</label>
+    <input id="storeProductImage" type="file"
+      accept="image/jpeg,image/png,image/webp">
+    <div id="storeProductCurrentImage" style="margin-top:10px;"></div>
+  </div>
+
+  <div style="margin-bottom:15px;">
+    <label>
+      <input id="storeProductPublished" type="checkbox">
+      Publish this product in the online store
+    </label>
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <button type="button" id="saveStoreProductButton">
+      Save Product
+    </button>
+
+    <button type="button" id="clearStoreProductButton">
+      Clear Form
+    </button>
+  </div>
+
+  <p id="storeProductMessage" aria-live="polite"></p>
+
+  <hr style="border-color:#555;margin:25px 0;">
+
+  <h3 style="color:#d4af37;">Existing Store Products</h3>
+  <div id="storeProductsList">
+    Loading products...
+  </div>
+
+</section>
+<!-- END STORE PRODUCTS MANAGEMENT -->
 
     <section class="quotes-section">
 
