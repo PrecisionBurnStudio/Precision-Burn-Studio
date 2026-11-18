@@ -2107,6 +2107,306 @@ document.getElementById("updateShipmentButton")
     }
   });
 </script>
+<script>
+(function () {
+  const form = {
+    id: document.getElementById("storeProductId"),
+    name: document.getElementById("storeProductName"),
+    description: document.getElementById("storeProductDescription"),
+    category: document.getElementById("storeProductCategory"),
+    price: document.getElementById("storeProductPrice"),
+    image: document.getElementById("storeProductImage"),
+    published: document.getElementById("storeProductPublished"),
+    currentImage: document.getElementById("storeProductCurrentImage"),
+    message: document.getElementById("storeProductMessage"),
+    list: document.getElementById("storeProductsList")
+  };
 
+  function showMessage(message, error = false) {
+    form.message.textContent = message;
+    form.message.style.color = error ? "#ff7777" : "#d4af37";
+  }
+
+  function publicImageUrl(path) {
+    if (!path) return "";
+    return supabaseClient.storage
+      .from("store-products")
+      .getPublicUrl(path).data.publicUrl;
+  }
+
+  function clearForm() {
+    form.id.value = "";
+    form.name.value = "";
+    form.description.value = "";
+    form.category.value = "";
+    form.price.value = "";
+    form.image.value = "";
+    form.published.checked = false;
+    form.currentImage.innerHTML = "";
+    showMessage("");
+  }
+
+  function makeButton(label, action) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    button.style.margin = "5px";
+    button.style.padding = "8px 12px";
+    button.style.cursor = "pointer";
+    button.addEventListener("click", action);
+    return button;
+  }
+
+  async function loadProducts() {
+    form.list.textContent = "Loading products...";
+
+    const { data, error } = await supabaseClient
+      .from("store_products")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      form.list.textContent = "Unable to load products: " + error.message;
+      return;
+    }
+
+    form.list.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      form.list.textContent = "No store products have been added yet.";
+      return;
+    }
+
+    data.forEach(product => {
+      const card = document.createElement("div");
+      card.style.cssText =
+        "padding:15px;margin:12px 0;background:#292929;" +
+        "border:1px solid #555;border-radius:8px;";
+
+      const title = document.createElement("h4");
+      title.textContent = product.product_name;
+      title.style.color = "#d4af37";
+
+      const details = document.createElement("p");
+      details.textContent =
+        "$" + Number(product.price).toFixed(2) +
+        " | " + (product.category || "Uncategorized");
+
+      const status = document.createElement("p");
+      status.textContent = product.archived
+        ? "ARCHIVED"
+        : product.published ? "PUBLISHED" : "HIDDEN";
+
+      const image = document.createElement("img");
+      if (product.image_path) {
+        image.src = publicImageUrl(product.image_path);
+        image.alt = product.product_name;
+        image.style.cssText =
+          "display:block;max-width:150px;max-height:120px;" +
+          "object-fit:contain;margin:10px 0;";
+      }
+
+      const actions = document.createElement("div");
+
+      actions.appendChild(makeButton("Edit", () => {
+        form.id.value = product.id;
+        form.name.value = product.product_name || "";
+        form.description.value = product.description || "";
+        form.category.value = product.category || "";
+        form.price.value = product.price;
+        form.published.checked = product.published;
+        form.image.value = "";
+
+        form.currentImage.innerHTML = "";
+        if (product.image_path) {
+          const preview = document.createElement("img");
+          preview.src = publicImageUrl(product.image_path);
+          preview.alt = "Current product photo";
+          preview.style.cssText =
+            "max-width:150px;max-height:120px;object-fit:contain;";
+          form.currentImage.appendChild(preview);
+        }
+
+        showMessage("Editing: " + product.product_name);
+        document.getElementById("storeProductsManagement")
+          .scrollIntoView({ behavior: "smooth" });
+      }));
+
+      if (product.archived) {
+        actions.appendChild(makeButton("Unarchive", async () => {
+          const { error } = await supabaseClient
+            .from("store_products")
+            .update({ archived: false, published: false })
+            .eq("id", product.id);
+
+          if (error) {
+            showMessage(error.message, true);
+            return;
+          }
+          await loadProducts();
+          showMessage("Product unarchived. It is currently hidden.");
+        }));
+      } else {
+        actions.appendChild(makeButton(
+          product.published ? "Hide" : "Publish",
+          async () => {
+            const { error } = await supabaseClient
+              .from("store_products")
+              .update({ published: !product.published })
+              .eq("id", product.id);
+
+            if (error) {
+              showMessage(error.message, true);
+              return;
+            }
+            await loadProducts();
+            showMessage("Product visibility updated.");
+          }
+        ));
+
+        actions.appendChild(makeButton("Archive", async () => {
+          if (!confirm("Archive this product? It will be hidden from the store.")) {
+            return;
+          }
+
+          const { error } = await supabaseClient
+            .from("store_products")
+            .update({ archived: true, published: false })
+            .eq("id", product.id);
+
+          if (error) {
+            showMessage(error.message, true);
+            return;
+          }
+          await loadProducts();
+          showMessage("Product archived.");
+        }));
+      }
+
+      card.appendChild(title);
+      card.appendChild(details);
+      card.appendChild(status);
+      if (product.image_path) card.appendChild(image);
+      card.appendChild(actions);
+      form.list.appendChild(card);
+    });
+  }
+
+  async function saveProduct() {
+    const name = form.name.value.trim();
+    const price = Number(form.price.value);
+    const file = form.image.files[0];
+    const productId = form.id.value;
+
+    if (!name) {
+      showMessage("Please enter a product name.", true);
+      return;
+    }
+
+    if (!Number.isFinite(price) || price <= 0) {
+      showMessage("Please enter a valid price greater than zero.", true);
+      return;
+    }
+
+    if (file) {
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        showMessage("Please use a JPG, PNG, or WebP image.", true);
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        showMessage("Please choose an image smaller than 5 MB.", true);
+        return;
+      }
+    }
+
+    if (form.published.checked && !file && !productId) {
+      showMessage("Please add a product photo before publishing.", true);
+      return;
+    }
+
+    const saveButton = document.getElementById("saveStoreProductButton");
+    saveButton.disabled = true;
+    showMessage("Saving product...");
+
+    try {
+      let imagePath = null;
+
+      if (productId) {
+        const { data: existing, error } = await supabaseClient
+          .from("store_products")
+          .select("image_path")
+          .eq("id", productId)
+          .single();
+
+        if (error) throw error;
+        imagePath = existing.image_path;
+      }
+
+      if (file) {
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+        const newPath = crypto.randomUUID() + "-" + safeName;
+
+        const { error: uploadError } = await supabaseClient.storage
+          .from("store-products")
+          .upload(newPath, file, {
+            cacheControl: "3600",
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+        imagePath = newPath;
+      }
+
+      if (form.published.checked && !imagePath) {
+        throw new Error("A product photo is required before publishing.");
+      }
+
+      const productData = {
+        product_name: name,
+        description: form.description.value.trim(),
+        category: form.category.value.trim(),
+        price: price,
+        image_path: imagePath,
+        published: form.published.checked,
+        archived: false,
+        updated_at: new Date().toISOString()
+      };
+
+      let result;
+
+      if (productId) {
+        result = await supabaseClient
+          .from("store_products")
+          .update(productData)
+          .eq("id", productId);
+      } else {
+        result = await supabaseClient
+          .from("store_products")
+          .insert(productData);
+      }
+
+      if (result.error) throw result.error;
+
+      clearForm();
+      await loadProducts();
+      showMessage("Product saved successfully.");
+
+    } catch (error) {
+      showMessage("Save failed: " + error.message, true);
+    } finally {
+      saveButton.disabled = false;
+    }
+  }
+
+  document.getElementById("saveStoreProductButton")
+    .addEventListener("click", saveProduct);
+
+  document.getElementById("clearStoreProductButton")
+    .addEventListener("click", clearForm);
+
+  loadProducts();
+})();
+</script>
 </body>
 </html>
