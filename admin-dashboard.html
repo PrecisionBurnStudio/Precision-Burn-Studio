@@ -504,6 +504,79 @@ textarea.edit-field {
 
 </section>
 <!-- END CUSTOM CATALOG MANAGEMENT -->
+<!-- PROJECT GALLERY MANAGEMENT -->
+<section id="projectGalleryManagement" style="
+  margin: 30px 0;
+  padding: 25px;
+  background: #1c1c1c;
+  border: 1px solid #b89646;
+  border-radius: 10px;
+  color: white;
+">
+
+  <h2 style="color:#d4af37;margin-top:0;">Project Gallery</h2>
+
+  <p style="color:#ccc;">
+    Upload photos of completed projects to showcase your work
+    to potential customers.
+  </p>
+
+  <input type="hidden" id="galleryItemId">
+
+  <div style="margin-bottom:15px;">
+    <label for="galleryTitle">Project Title</label>
+    <input id="galleryTitle" type="text" class="edit-field"
+      placeholder="Example: Custom Wooden Memorial Plaque">
+  </div>
+
+  <div style="margin-bottom:15px;">
+    <label for="galleryDescription">Project Description</label>
+    <textarea id="galleryDescription" class="edit-field"
+      rows="4" placeholder="Describe the finished project"></textarea>
+  </div>
+
+  <div style="margin-bottom:15px;">
+    <label for="galleryCategory">Category</label>
+    <input id="galleryCategory" type="text" class="edit-field"
+      placeholder="Example: Memorial, Signs, Gifts, Ornaments">
+  </div>
+
+  <div style="margin-bottom:15px;">
+    <label for="galleryImage">Project Photo</label>
+    <input id="galleryImage" type="file"
+      accept="image/jpeg,image/png,image/webp">
+    <div id="galleryCurrentImage" style="margin-top:10px;"></div>
+  </div>
+
+  <div style="margin-bottom:15px;">
+    <label>
+      <input id="galleryPublished" type="checkbox">
+      Display this project in the public gallery
+    </label>
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <button type="button" id="saveGalleryButton">
+      Save Gallery Item
+    </button>
+
+    <button type="button" id="clearGalleryButton">
+      Clear Form
+    </button>
+  </div>
+
+  <p id="galleryMessage" aria-live="polite"></p>
+
+  <hr style="border-color:#555;margin:25px 0;">
+
+  <h3 style="color:#d4af37;">Existing Gallery Projects</h3>
+
+  <div id="galleryItemsList">
+    Loading gallery projects...
+  </div>
+
+</section>
+<!-- END PROJECT GALLERY MANAGEMENT -->
 
     <section class="quotes-section">
 
