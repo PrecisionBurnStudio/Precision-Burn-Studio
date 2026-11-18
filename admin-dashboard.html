@@ -2874,5 +2874,257 @@ document.getElementById("updateShipmentButton")
   loadCatalogItems();
 })();
 </script>
+  <script>
+(function () {
+  const form = {
+    id: document.getElementById("galleryItemId"),
+    title: document.getElementById("galleryTitle"),
+    description: document.getElementById("galleryDescription"),
+    category: document.getElementById("galleryCategory"),
+    image: document.getElementById("galleryImage"),
+    published: document.getElementById("galleryPublished"),
+    currentImage: document.getElementById("galleryCurrentImage"),
+    message: document.getElementById("galleryMessage"),
+    list: document.getElementById("galleryItemsList")
+  };
+
+  function showMessage(message, error = false) {
+    form.message.textContent = message;
+    form.message.style.color = error ? "#ff7777" : "#d4af37";
+  }
+
+  function publicImageUrl(path) {
+    if (!path) return "";
+    return supabaseClient.storage
+      .from("project-gallery")
+      .getPublicUrl(path).data.publicUrl;
+  }
+
+  function clearForm() {
+    form.id.value = "";
+    form.title.value = "";
+    form.description.value = "";
+    form.category.value = "";
+    form.image.value = "";
+    form.published.checked = false;
+    form.currentImage.innerHTML = "";
+    showMessage("");
+  }
+
+  function makeButton(label, action) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    button.style.margin = "5px";
+    button.style.padding = "8px 12px";
+    button.style.cursor = "pointer";
+    button.addEventListener("click", action);
+    return button;
+  }
+
+  async function loadGalleryItems() {
+    form.list.textContent = "Loading gallery projects...";
+
+    const { data, error } = await supabaseClient
+      .from("gallery_items")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      form.list.textContent =
+        "Unable to load gallery projects: " + error.message;
+      return;
+    }
+
+    form.list.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      form.list.textContent = "No gallery projects have been added yet.";
+      return;
+    }
+
+    data.forEach(item => {
+      const card = document.createElement("div");
+      card.style.cssText =
+        "padding:15px;margin:12px 0;background:#292929;" +
+        "border:1px solid #555;border-radius:8px;";
+
+      const title = document.createElement("h4");
+      title.textContent = item.title;
+      title.style.color = "#d4af37";
+
+      const details = document.createElement("p");
+      details.textContent = item.category || "Uncategorized";
+
+      const status = document.createElement("p");
+      status.textContent = item.published ? "PUBLISHED" : "HIDDEN";
+
+      const image = document.createElement("img");
+      image.src = publicImageUrl(item.image_path);
+      image.alt = item.title;
+      image.style.cssText =
+        "display:block;max-width:180px;max-height:140px;" +
+        "object-fit:contain;margin:10px 0;";
+
+      const actions = document.createElement("div");
+
+      actions.appendChild(makeButton("Edit", () => {
+        form.id.value = item.id;
+        form.title.value = item.title || "";
+        form.description.value = item.description || "";
+        form.category.value = item.category || "";
+        form.image.value = "";
+        form.published.checked = item.published;
+
+        form.currentImage.innerHTML = "";
+
+        const preview = document.createElement("img");
+        preview.src = publicImageUrl(item.image_path);
+        preview.alt = "Current project photo";
+        preview.style.cssText =
+          "max-width:180px;max-height:140px;object-fit:contain;";
+        form.currentImage.appendChild(preview);
+
+        showMessage("Editing: " + item.title);
+        document.getElementById("projectGalleryManagement")
+          .scrollIntoView({ behavior: "smooth" });
+      }));
+
+      actions.appendChild(makeButton(
+        item.published ? "Hide" : "Publish",
+        async () => {
+          const { error } = await supabaseClient
+            .from("gallery_items")
+            .update({ published: !item.published })
+            .eq("id", item.id);
+
+          if (error) {
+            showMessage(error.message, true);
+            return;
+          }
+
+          await loadGalleryItems();
+          showMessage("Gallery visibility updated.");
+        }
+      ));
+
+      card.appendChild(title);
+      card.appendChild(details);
+      card.appendChild(status);
+      card.appendChild(image);
+      card.appendChild(actions);
+      form.list.appendChild(card);
+    });
+  }
+
+  async function saveGalleryItem() {
+    const title = form.title.value.trim();
+    const file = form.image.files[0];
+    const itemId = form.id.value;
+
+    if (!title) {
+      showMessage("Please enter a project title.", true);
+      return;
+    }
+
+    if (file) {
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        showMessage("Please use a JPG, PNG, or WebP image.", true);
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        showMessage("Please choose an image smaller than 5 MB.", true);
+        return;
+      }
+    }
+
+    if (!file && !itemId) {
+      showMessage("Please select a project photo.", true);
+      return;
+    }
+
+    const saveButton = document.getElementById("saveGalleryButton");
+    saveButton.disabled = true;
+    showMessage("Saving gallery project...");
+
+    try {
+      let imagePath = null;
+
+      if (itemId) {
+        const { data: existing, error } = await supabaseClient
+          .from("gallery_items")
+          .select("image_path")
+          .eq("id", itemId)
+          .single();
+
+        if (error) throw error;
+        imagePath = existing.image_path;
+      }
+
+      if (file) {
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+        const newPath = crypto.randomUUID() + "-" + safeName;
+
+        const { error: uploadError } = await supabaseClient.storage
+          .from("project-gallery")
+          .upload(newPath, file, {
+            cacheControl: "3600",
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+        imagePath = newPath;
+      }
+
+      if (!imagePath) {
+        throw new Error("A project photo is required.");
+      }
+
+      const itemData = {
+        title: title,
+        description: form.description.value.trim(),
+        category: form.category.value.trim(),
+        image_path: imagePath,
+        published: form.published.checked,
+        updated_at: new Date().toISOString()
+      };
+
+      let result;
+
+      if (itemId) {
+        result = await supabaseClient
+          .from("gallery_items")
+          .update(itemData)
+          .eq("id", itemId);
+      } else {
+        result = await supabaseClient
+          .from("gallery_items")
+          .insert(itemData);
+      }
+
+      if (result.error) throw result.error;
+
+      clearForm();
+      await loadGalleryItems();
+      showMessage("Gallery project saved successfully.");
+
+    } catch (error) {
+      showMessage("Save failed: " + error.message, true);
+    } finally {
+      saveButton.disabled = false;
+    }
+  }
+
+  document.getElementById("saveGalleryButton")
+    .addEventListener("click", saveGalleryItem);
+
+  document.getElementById("clearGalleryButton")
+    .addEventListener("click", clearForm);
+
+  loadGalleryItems();
+})();
+</script>
 </body>
 </html>
